@@ -1,0 +1,296 @@
+{
+  "title": "redmi note 10",
+  "price": 10000,
+  "local_price": 12000,
+  "slug": "redmi10",
+  "description": {
+    "head_desc": "this is brand new redmi note 10 explore the world",
+    "sub_desc": [
+      {
+        "key": "model",
+        "value": "xxx"
+      },
+      {
+        "key": "protein",
+        "value": "12%"
+      },
+      {
+        "key": "fat",
+        "value": "30%"
+      },
+      {
+        "key": "oil",
+        "value": "10%"
+      }
+    ]
+  },
+  "meta_data": [
+    {
+      "key": "model",
+      "value": "xxx"
+    },
+    {
+      "key": "protein",
+      "value": "12%"
+    },
+    {
+      "key": "fat",
+      "value": "30%"
+    },
+    {
+      "key": "oil",
+      "value": "10%"
+    }
+  ],
+  "category": {
+    "primary": "mobiles",
+    "secondry": "mobiles"
+  },
+  "sizes": [
+    {
+      "qty": 10,
+      "size": "M"
+    },
+    {
+      "qty": 10,
+      "size": "X"
+    },
+    {
+      "qty": 10,
+      "size": "Xl"
+    }
+  ],
+  "brand": "Xaomi",
+  "quantity": 10,
+  "images": {
+    "primary": [
+      {
+        "public_id": "Sshshvetring",
+        "url": "https://www.netmeds.com/images/product-v1/600x600/328123/revital_h_capsule_30s_40136_0_1.jpg"
+      },
+      {
+        "public_id": "Sshsshdjdvetring",
+        "url": "https://www.netmeds.com/images/product-v1/600x600/328123/revital_h_capsule_30s_443045_2_0.jpg"
+      },
+      {
+        "public_id": "Sshsshnjdhdehedjdvetring",
+        "url": "https://www.netmeds.com/images/product-v1/600x600/328123/revital_h_capsule_30s_443047_4_0.jpg"
+      }
+    ],
+    "descriptive": [
+      {
+        "public_id": "Sshshvswsw2etring",
+        "url": "https://www.netmeds.com/images/product-v1/600x600/328123/revital_h_capsule_30s_40136_0_1.jpg"
+      },
+      {
+        "public_id": "Sshsshdjdwevetring",
+        "url": "https://www.netmeds.com/images/product-v1/600x600/328123/revital_h_capsule_30s_443045_2_0.jpg"
+      },
+      {
+        "public_id": "Sshsshnserbnjdhdehedjdvetring",
+        "url": "https://www.netmeds.com/images/product-v1/600x600/328123/revital_h_capsule_30s_443047_4_0.jpg"
+      }
+    ]
+  },
+  "colors": [
+    {
+      "qty": 10,
+      "color": "red"
+    },
+    {
+      "qty": 10,
+      "color": "blue"
+    },
+    {
+      "qty": 10,
+      "color": "black"
+    }
+  ],
+  "tag": [
+    "Xaomi",
+    "redmi note 10"
+  ],
+  "feedback": {
+    "summery": {
+      "total_rating": 100,
+      "avarage_rating": 4,
+      "total_comment": 20
+    },
+    "data": [
+      {
+        "images": [
+          {
+            "img": "https://www.netmeds.com/images/product-v1/600x600/328123/revital_h_capsule_30s_443047_4_0.jpg",
+            "date": {
+              "created": "1702401902853 ",
+              "updated": "1702401902853 "
+            }
+          },
+          {
+            "img": "https://www.netmeds.com/images/product-v1/600x600/328123/revital_h_capsule_30s_40136_0_1.jpg",
+            "date": {
+              "created": "1702401902853 ",
+              "updated": "1702401902853 "
+            }
+          },
+          {
+            "img": "https://www.netmeds.com/images/product-v1/600x600/328123/revital_h_capsule_30s_40136_0_1.jpg",
+            "date": {
+              "created": "1702401902853 ",
+              "updated": "1702401902853 "
+            }
+          }
+        ],
+        "comment": {
+          "value": "String no thig good",
+          "date": {
+            "created": "1702401902853 ",
+            "updated": "1702401902853 "
+          }
+        },
+        "rating": {
+          "value": 3,
+          "date": {
+            "created": "1702401902853 ",
+            "updated": "1702401902853 "
+          }
+        },
+        "postedby": "6567226b854e76cea88f5147"
+      },
+      {
+        "images": [
+          {
+            "img": "https://www.netmeds.com/images/product-v1/600x600/328123/revital_h_capsule_30s_443047_4_0.jpg",
+            "date": {
+              "created": "1702401902853 ",
+              "updated": "1702401902853 "
+            }
+          },
+          {
+            "img": "https://www.netmeds.com/images/product-v1/600x600/328123/revital_h_capsule_30s_40136_0_1.jpg",
+            "date": {
+              "created": "1702401902853 ",
+              "updated": "1702401902853 "
+            }
+          },
+          {
+            "img": "https://www.netmeds.com/images/product-v1/600x600/328123/revital_h_capsule_30s_40136_0_1.jpg",
+            "date": {
+              "created": "1702401902853 ",
+              "updated": "1702401902853 "
+            }
+          }
+        ],
+        "comment": {
+          "value": "String no thig good",
+          "date": {
+            "created": "1702401902853 ",
+            "updated": "1702401902853 "
+          }
+        },
+        "rating": {
+          "value": 3,
+          "date": {
+            "created": "1702401902853 ",
+            "updated": "1702401902853 "
+          }
+        },
+        "postedby": "6567226b854e76cea88f5147"
+      },
+      {
+        "images": [
+          {
+            "img": "https://www.netmeds.com/images/product-v1/600x600/328123/revital_h_capsule_30s_443047_4_0.jpg",
+            "date": {
+              "created": "1702401902853 ",
+              "updated": "1702401902853 "
+            }
+          },
+          {
+            "img": "https://www.netmeds.com/images/product-v1/600x600/328123/revital_h_capsule_30s_40136_0_1.jpg",
+            "date": {
+              "created": "1702401902853 ",
+              "updated": "1702401902853 "
+            }
+          },
+          {
+            "img": "https://www.netmeds.com/images/product-v1/600x600/328123/revital_h_capsule_30s_40136_0_1.jpg",
+            "date": {
+              "created": "1702401902853 ",
+              "updated": "1702401902853 "
+            }
+          }
+        ],
+        "comment": {
+          "value": "String no thig good",
+          "date": {
+            "created": "1702401902853 ",
+            "updated": "1702401902853 "
+          }
+        },
+        "rating": {
+          "value": 3,
+          "date": {
+            "created": "1702401902853 ",
+            "updated": "1702401902853 "
+          }
+        },
+        "postedby": "6567226b854e76cea88f5147"
+      },
+      {
+        "images": [
+          {
+            "img": "https://www.netmeds.com/images/product-v1/600x600/328123/revital_h_capsule_30s_443047_4_0.jpg",
+            "date": {
+              "created": "1702401902853 ",
+              "updated": "1702401902853 "
+            }
+          },
+          {
+            "img": "https://www.netmeds.com/images/product-v1/600x600/328123/revital_h_capsule_30s_40136_0_1.jpg",
+            "date": {
+              "created": "1702401902853 ",
+              "updated": "1702401902853 "
+            }
+          },
+          {
+            "img": "https://www.netmeds.com/images/product-v1/600x600/328123/revital_h_capsule_30s_40136_0_1.jpg",
+            "date": {
+              "created": "1702401902853 ",
+              "updated": "1702401902853 "
+            }
+          }
+        ],
+        "comment": {
+          "value": "String no thig good",
+          "date": {
+            "created": "1702401902853 ",
+            "updated": "1702401902853 "
+          }
+        },
+        "rating": {
+          "value": 3,
+          "date": {
+            "created": "1702401902853 ",
+            "updated": "1702401902853 "
+          }
+        },
+        "postedby": "6567226b854e76cea88f5147"
+      }
+    ]
+  },
+  "policy": {
+    "exchange": false,
+    "return_or_refund": false,
+    "description": "String no return or replacement",
+    "rules": [
+      "String",
+      "no replacement "
+    ]
+  },
+  "terms_and_conditions": [
+    "String",
+    "no replacement "
+  ]
+  ,"featured_on":["deal_of_the_day","populer","special"]
+}

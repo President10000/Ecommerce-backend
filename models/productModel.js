@@ -135,6 +135,7 @@ var productSchema = new mongoose.Schema(
       rules: [String],
     },
     terms_and_conditions: [String],
+    featured_on:[String]
   },
   { timestamps: true }
 );
