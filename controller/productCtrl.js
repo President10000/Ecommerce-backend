@@ -101,7 +101,11 @@ const getAllProduct = asyncHandler(async (req, res) => {
 });
 const addToWishlist = asyncHandler(async (req, res) => {
   const { _id } = req.user;
+  console.log(_id);
+
   const { prodId } = req.body;
+  validateMongoDbId(prodId);
+  console.log(prodId);
   try {
     const user = await User.findById(_id);
     const alreadyadded = user.wishlist.find((id) => id.toString() === prodId);
