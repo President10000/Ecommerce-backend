@@ -7,28 +7,62 @@ var productSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      minLength: 10,
+      maxLength: 500,
+    },
+    price: {
+      type: Number,
+      required: true,
+    },
+    local_price: {
+      type: Number,
     },
     slug: {
       type: String,
       required: true,
       unique: true,
       lowercase: true,
+      minLength: 6,
+      maxLength: 500,
     },
     description: {
-      type: String,
-      required: true,
+      head_desc: {
+        type: String,
+        required: true,
+        minLength: 25,
+      },
+      sub_desc: [
+        {
+          key: String,
+          value: String,
+        },
+      ],
     },
-    price: {
-      type: Number,
-      required: true,
-    },
+    meta_data: [
+      {
+        key: String,
+        value: String,
+      },
+    ],
+
     category: {
-      type: String,
-      required: true,
+      primary: {
+        type: String,
+        required: true,
+        minLength: 3,
+      },
+      secondry: String,
     },
+    sizes: [
+      {
+        qty: Number,
+        size: String,
+      },
+    ],
     brand: {
       type: String,
       required: true,
+      minLength: 1,
     },
     quantity: {
       type: Number,
@@ -38,25 +72,70 @@ var productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    images: [
-      {
-        public_id: String,
-        url: String,
-      },
-    ],
-    color: [],
-    tags: [],
-    ratings: [
-      {
-        star: Number,
-        comment: String,
-        postedby: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-      },
-    ],
-    totalrating: {
-      type: String,
-      default: 0,
+    images: {
+      primary: [
+        {
+          public_id: String,
+          url: String,
+        },
+      ],
+      descriptive: [
+        {
+          public_id: String,
+          url: String,
+        },
+      ],
     },
+    colors: [
+      {
+        qty: Number,
+        color: String,
+      },
+    ],
+    tags: [String],
+    feedback: {
+      summery: {
+        total_rating: {type:Number, default: 0,},
+        avarage_rating: {type:Number, default: 0,},
+        total_comment: {type:Number, default: 0,},
+      },
+      data: [
+        {
+          images: [{
+            img: String,
+            date: {
+              created: Date,
+              updated: Date,
+            },
+          }],
+          comment: {
+            value: String,
+            date: {
+              created: Date,
+              updated: Date,
+            },
+          },
+
+          rating: {
+            value: Number,
+            date: {
+              created: Date,
+              updated: Date,
+            },
+          },
+
+          postedby: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        },
+      ],
+    },
+    policy: {
+      exchange: Boolean,
+      return_or_refund: Boolean,
+      description: String,
+      rules: [String],
+    },
+    terms_and_conditions: [String],
+    featured_on:[String]
   },
   { timestamps: true }
 );

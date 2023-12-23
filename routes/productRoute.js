@@ -7,6 +7,8 @@ const {
   deleteProduct,
   addToWishlist,
   rating,
+  getProductByCategory,
+  deals_of_the_day,
 } = require("../controller/productCtrl");
 const { isAdmin, authMiddleware } = require("../middlewares/authMiddleware");
 const router = express.Router();
@@ -21,5 +23,7 @@ router.put("/:id", authMiddleware, isAdmin, updateProduct);
 router.delete("/:id", authMiddleware, isAdmin, deleteProduct);
 
 router.get("/", getAllProduct);
+router.get("/category/:category",getProductByCategory)
+router.get("/deals/deals_of_the_day",deals_of_the_day)
 
 module.exports = router;
