@@ -1,4 +1,5 @@
 const mongoose = require("mongoose"); // Erase if already required
+const { number } = require("sharp/lib/is");
 
 // Declare the Schema of the Mongo model
 var productSchema = new mongoose.Schema(
@@ -76,12 +77,14 @@ var productSchema = new mongoose.Schema(
       primary: [
         {
           public_id: String,
+          asset_id:String,
           url: String,
         },
       ],
       descriptive: [
         {
           public_id: String,
+          asset_id:String,
           url: String,
         },
       ],
@@ -102,7 +105,9 @@ var productSchema = new mongoose.Schema(
       data: [
         {
           images: [{
-            img: String,
+            public_id: String,
+            asset_id:String,
+            url: String,
             date: {
               created: Date,
               updated: Date,
@@ -129,9 +134,9 @@ var productSchema = new mongoose.Schema(
       ],
     },
     policy: {
-      exchange: Boolean,
-      return_or_refund: Boolean,
-      description: String,
+      exchange: {status:Boolean,validity:Number},
+      return_or_refund: {status:Boolean,validity:Number},
+      description: [String],
       rules: [String],
     },
     terms_and_conditions: [String],
