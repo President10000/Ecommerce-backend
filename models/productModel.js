@@ -1,5 +1,4 @@
-const mongoose = require("mongoose"); // Erase if already required
-const { number } = require("sharp/lib/is");
+const mongoose = require("mongoose"); 
 
 // Declare the Schema of the Mongo model
 var productSchema = new mongoose.Schema(
@@ -16,6 +15,7 @@ var productSchema = new mongoose.Schema(
       required: true,
     },
     local_price: {
+      required: true,
       type: Number,
     },
     slug: {
@@ -24,13 +24,10 @@ var productSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       minLength: 6,
-      maxLength: 500,
     },
     description: {
       head_desc: {
         type: String,
-        required: true,
-        minLength: 25,
       },
       sub_desc: [
         {
@@ -52,7 +49,7 @@ var productSchema = new mongoose.Schema(
         required: true,
         minLength: 3,
       },
-      secondry: String,
+      secondry: [String],
     },
     sizes: [
       {
@@ -62,7 +59,6 @@ var productSchema = new mongoose.Schema(
     ],
     brand: {
       type: String,
-      required: true,
       minLength: 1,
     },
     quantity: {
@@ -77,14 +73,14 @@ var productSchema = new mongoose.Schema(
       primary: [
         {
           public_id: String,
-          asset_id:String,
+          asset_id: String,
           url: String,
         },
       ],
       descriptive: [
         {
           public_id: String,
-          asset_id:String,
+          asset_id: String,
           url: String,
         },
       ],
@@ -96,51 +92,53 @@ var productSchema = new mongoose.Schema(
       },
     ],
     tags: [String],
-    feedback: {
-      summery: {
-        total_rating: {type:Number, default: 0,},
-        avarage_rating: {type:Number, default: 0,},
-        total_comment: {type:Number, default: 0,},
-      },
-      data: [
-        {
-          images: [{
-            public_id: String,
-            asset_id:String,
-            url: String,
-            date: {
-              created: Date,
-              updated: Date,
-            },
-          }],
-          comment: {
-            value: String,
-            date: {
-              created: Date,
-              updated: Date,
-            },
-          },
-
-          rating: {
-            value: Number,
-            date: {
-              created: Date,
-              updated: Date,
-            },
-          },
-
-          postedby: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-        },
-      ],
-    },
     policy: {
-      exchange: {status:Boolean,validity:Number},
-      return_or_refund: {status:Boolean,validity:Number},
-      description: [String],
+      exchange: { status: Boolean, validity: Number },
+      return_or_refund: { status: Boolean, validity: Number },
+      description: String,
       rules: [String],
     },
     terms_and_conditions: [String],
-    featured_on:[String]
+    featured_on: [String],
+    // feedback: {
+    //   summery: {
+    //     total_rating: { type: Number, default: 0 },
+    //     avarage_rating: { type: Number, default: 0 },
+    //     total_comment: { type: Number, default: 0 },
+    //   },
+    //   data: [
+    //     {
+    //       images: [
+    //         {
+    //           public_id: String,
+    //           asset_id: String,
+    //           url: String,
+    //           date: {
+    //             created: Date,
+    //             updated: Date,
+    //           },
+    //         },
+    //       ],
+    //       comment: {
+    //         value: String,
+    //         date: {
+    //           created: Date,
+    //           updated: Date,
+    //         },
+    //       },
+
+    //       rating: {
+    //         value: Number,
+    //         date: {
+    //           created: Date,
+    //           updated: Date,
+    //         },
+    //       },
+
+    //       postedby: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    //     },
+    //   ],
+    // },
   },
   { timestamps: true }
 );
