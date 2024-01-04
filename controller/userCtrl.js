@@ -20,9 +20,11 @@ const createUser = asyncHandler(async (req, res) => {
    * TODO:Get the email from req.body
    */
   const email = req.body.email;
+  if(!email){res.json(404).json({message:"Invalid Credentials"})}
   /**
    * TODO:With the help of email find the user exists or not
    */
+
   const findUser = await User.findOne({ email: email });
 
   if (!findUser) {
@@ -35,7 +37,8 @@ const createUser = asyncHandler(async (req, res) => {
     /**
      * TODO:if user found then thow an error: User already exists
      */
-    throw new Error("User Already Exists");
+    // throw new Error("User Already Exists");
+    res.json(400).json({message:"User Already Exists"})
   }
 });
 
@@ -43,6 +46,7 @@ const createUser = asyncHandler(async (req, res) => {
 const loginUserCtrl = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   // check if user exists or not
+ if(email,password){
   const findUser = await User.findOne({ email });
   if (findUser && (await findUser.isPasswordMatched(password))) {
     const refreshToken = await generateRefreshToken(findUser?._id);
@@ -66,8 +70,11 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
       token: generateToken(findUser?._id),
     });
   } else {
-    throw new Error("Invalid Credentials");
+    res.status(404).json({ message: "Invalid Credentials" });
   }
+ } else {
+  res.status(404).json({ message: "body not found" });
+}
 });
 
 // admin login
@@ -75,31 +82,36 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
 const loginAdmin = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   // check if user exists or not
-  const findAdmin = await User.findOne({ email });
-  if (findAdmin.role !== "admin") throw new Error("Not Authorised");
-  if (findAdmin && (await findAdmin.isPasswordMatched(password))) {
-    const refreshToken = await generateRefreshToken(findAdmin?._id);
-    const updateuser = await User.findByIdAndUpdate(
-      findAdmin.id,
-      {
-        refreshToken: refreshToken,
-      },
-      { new: true }
-    );
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      maxAge: 72 * 60 * 60 * 1000,
-    });
-    res.json({
-      _id: findAdmin?._id,
-      firstname: findAdmin?.firstname,
-      lastname: findAdmin?.lastname,
-      email: findAdmin?.email,
-      mobile: findAdmin?.mobile,
-      token: generateToken(findAdmin?._id),
-    });
+  if (email && password) {
+    const findAdmin = await User.findOne({ email });
+    if (findAdmin.role !== "admin") {
+      res.status(404).json({ message: "you are not allowed" });
+    } else if (findAdmin && (await findAdmin.isPasswordMatched(password))) {
+      const refreshToken = await generateRefreshToken(findAdmin?._id);
+      const updateuser = await User.findByIdAndUpdate(
+        findAdmin.id,
+        {
+          refreshToken: refreshToken,
+        },
+        { new: true }
+      );
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        maxAge: 72 * 60 * 60 * 1000,
+      });
+      res.json({
+        _id: findAdmin?._id,
+        firstname: findAdmin?.firstname,
+        lastname: findAdmin?.lastname,
+        email: findAdmin?.email,
+        mobile: findAdmin?.mobile,
+        token: generateToken(findAdmin?._id),
+      });
+    } else {
+      res.status(404).json({ message: "Invalid Credentials" });
+    }
   } else {
-    throw new Error("Invalid Credentials");
+    res.status(404).json({ message: "body not found" });
   }
 });
 
