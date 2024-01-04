@@ -12,7 +12,7 @@ const createProduct = asyncHandler(async (req, res) => {
     const newProduct = await Product.create(req.body);
     res.json(newProduct);
   } catch (error) {
-    throw new Error(error);
+    res.status(400).json(error)
   }
 });
 
@@ -28,7 +28,7 @@ const updateProduct = asyncHandler(async (req, res) => {
     });
     res.json(updateProduct);
   } catch (error) {
-    throw new Error(error);
+    res.status(400).json(error)
   }
 });
 
@@ -39,7 +39,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
     const deleteProduct = await Product.findOneAndDelete(id);
     res.json(deleteProduct);
   } catch (error) {
-    throw new Error(error);
+    res.status(400).json(error)
   }
 });
 
@@ -50,7 +50,7 @@ const getaProduct = asyncHandler(async (req, res) => {
     const findProduct = await Product.findById(id);
     res.json(findProduct);
   } catch (error) {
-    throw new Error(error);
+    res.status(400).json(error)
   }
 });
 
@@ -96,7 +96,7 @@ const getAllProduct = asyncHandler(async (req, res) => {
     const product = await query;
     res.json(product);
   } catch (error) {
-    throw new Error(error);
+    res.status(400).json(error)
   }
 });
 
