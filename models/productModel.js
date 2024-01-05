@@ -1,4 +1,4 @@
-const mongoose = require("mongoose"); 
+const mongoose = require("mongoose");
 
 // Declare the Schema of the Mongo model
 var productSchema = new mongoose.Schema(
@@ -100,6 +100,7 @@ var productSchema = new mongoose.Schema(
     },
     terms_and_conditions: [String],
     featured_on: [String],
+    as_draft: { type: Boolean, default: true },
     // feedback: {
     //   summery: {
     //     total_rating: { type: Number, default: 0 },
