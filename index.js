@@ -23,10 +23,11 @@ dbConnect();
 app.use(morgan("dev"));
 app.use(
   cors({
-    origin: "http://localhost:5137",
+    origin: "https://techtreasure.vercel.app/",
     credentials: true,
   })
 );
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
