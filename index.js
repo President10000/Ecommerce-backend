@@ -24,6 +24,7 @@ app.use(morgan("dev"));
 app.use(
   cors({
     origin: "https://techtreasure.vercel.app",
+    origin: "https://raiappliances-admin-panel.vercel.app",
     credentials: true,
   })
 );
