@@ -12,10 +12,10 @@ var productSchema = new mongoose.Schema(
     },
     price: {
       type: Number,
-      required: true,
+      // required: true,
     },
     local_price: {
-      required: true,
+      // required: true,
       type: Number,
     },
     slug: {
@@ -46,8 +46,8 @@ var productSchema = new mongoose.Schema(
     category: {
       primary: {
         type: String,
-        required: true,
-        minLength: 3,
+        // required: true,
+        // minLength: 3,
       },
       secondry: [String],
     },
@@ -63,7 +63,7 @@ var productSchema = new mongoose.Schema(
     },
     quantity: {
       type: Number,
-      required: true,
+      // required: true,
     },
     sold: {
       type: Number,

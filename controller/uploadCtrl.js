@@ -20,7 +20,11 @@ const uploadImages = asyncHandler(async (req, res) => {
     const images = urls.map((file) => {
       return file;
     });
-    res.json(images);
+    if(images[0].asset_id){
+      res.json(images);
+    }else{
+      res.status(400).json({message:"did not get asset id from cloudinary"});
+    }
   } catch (error) {
     res.status(400).json(error)
   }
