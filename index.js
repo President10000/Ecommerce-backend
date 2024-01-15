@@ -23,7 +23,7 @@ dbConnect();
 app.use(morgan("dev"));
 app.use(
   cors({
-    origin: "https://techtreasure.vercel.app/",
+    origin: "https://techtreasure.vercel.app",
     credentials: true,
   })
 );
