@@ -35,6 +35,8 @@ app.use(
       const allowedOrigins = [
         "https://techtreasure.vercel.app",
         "https://raiappliances-admin-panel.vercel.app",
+        "http://localhost:5173",
+        "http://localhost:5174",
       ];
       if (!origin || allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true);
