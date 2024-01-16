@@ -21,10 +21,37 @@ const cors = require("cors");
 
 dbConnect();
 app.use(morgan("dev"));
-app.use(cors());
+// app.use(
+//   cors({
+//     origin: "https://techtreasure.vercel.app",
+//     origin: "https://raiappliances-admin-panel.vercel.app",
+//     credentials: true,
+//   })
+// );
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      const allowedOrigins = [
+        "https://techtreasure.vercel.app",
+        "https://raiappliances-admin-panel.vercel.app",
+      ];
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
 app.use("/api/user", authRouter);
 app.use("/api/product", productRouter);
 app.use("/api/blog", blogRouter);
