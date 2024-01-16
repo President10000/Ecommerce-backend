@@ -36,6 +36,7 @@ var productSchema = new mongoose.Schema(
         },
       ],
     },
+    table:[{head:String,rows:[String]}],
     meta_data: [
       {
         key: String,
