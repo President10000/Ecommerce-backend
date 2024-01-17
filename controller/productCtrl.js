@@ -133,39 +133,38 @@ const getAllProduct = asyncHandler(async (req, res) => {
 
 const addToWishlist = asyncHandler(async (req, res) => {
   const { _id } = req.user;
-  console.log(_id);
 
   const { prodId } = req.body;
   validateMongoDbId(prodId);
-  console.log(prodId);
   try {
     const user = await User.findById(_id);
     const alreadyadded = user.wishlist.find((id) => id.toString() === prodId);
+
     if (alreadyadded) {
-      let user = await User.findByIdAndUpdate(
+      let wishlist = await User.findByIdAndUpdate(
         _id,
         {
           $pull: { wishlist: prodId },
         },
         {
-          new: true,
+          new: true,projection: 'wishlist'
         }
       );
-      res.json(user);
+      res.json({status:"removed",wishlist});
     } else {
-      let user = await User.findByIdAndUpdate(
+      let wishlist = await User.findByIdAndUpdate(
         _id,
         {
           $push: { wishlist: prodId },
         },
         {
-          new: true,
+          new: true,projection: 'wishlist'
         }
       );
-      res.json(user);
+      res.json({status:"added",wishlist});
     }
   } catch (error) {
-    throw new Error(error);
+    res.status(400).json({message:error.message});
   }
 });
 
