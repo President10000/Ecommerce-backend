@@ -342,9 +342,10 @@ const resetPassword = asyncHandler(async (req, res) => {
 });
 
 const getWishlist = asyncHandler(async (req, res) => {
+  const { populate } = req.query;
   const { _id } = req.user;
   try {
-    const wishlist = await User.findById(_id, "wishlist").populate("wishlist");
+    const wishlist = await User.findById(_id, "wishlist").populate(populate?populate:"");
     res.json(wishlist);
   } catch (error) {
     res.status(404).json({ message: error.message });
