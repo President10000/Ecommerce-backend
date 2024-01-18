@@ -17,6 +17,7 @@ const {
   getWishlist,
   saveAddress,
   userCart,
+  removeItemFromUserCart,
   getUserCart,
   emptyCart,
   applyCoupon,
@@ -36,6 +37,7 @@ router.put("/password", authMiddleware, updatePassword);
 router.post("/login", loginUserCtrl);
 router.post("/admin-login", loginAdmin);
 router.post("/cart", authMiddleware, userCart);
+router.delete("/cart", authMiddleware, removeItemFromUserCart);
 router.post("/cart/applycoupon", authMiddleware, applyCoupon);
 router.post("/cart/cash-order", authMiddleware, createOrder);
 router.get("/all-users", getallUser);

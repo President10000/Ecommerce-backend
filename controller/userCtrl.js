@@ -351,7 +351,7 @@ const getWishlist = asyncHandler(async (req, res) => {
   }
 });
 
-async function manageCart(existingCart, itemsToInsert) {
+async function putItemToCart(existingCart, itemsToInsert) {
   let cartTotal = 0;
   for (let i = 0; i < itemsToInsert.length; i++) {
     if (
@@ -391,13 +391,14 @@ const userCart = asyncHandler(async (req, res) => {
     // let products = [];
     const user = await User.findById(_id, { _id });
     // check if user already have product in cart
+    console.log({ user });
     if (!user._id) {
       res.status(404).json({ message: "user not found" });
     }
 
     const alreadyExistCart = await Cart.findOne({ user: user._id });
     if (alreadyExistCart?._id) {
-      const { products, cartTotal } = await manageCart(
+      const { products, cartTotal } = await putItemToCart(
         [...alreadyExistCart.products],
         cart
       );
@@ -408,7 +409,7 @@ const userCart = asyncHandler(async (req, res) => {
       );
       res.json(updated);
     } else {
-      const { products, cartTotal } = await manageCart([], cart);
+      const { products, cartTotal } = await putItemToCart([], cart);
       let newCart = await new Cart({
         products,
         cartTotal: cartTotal,
@@ -423,14 +424,43 @@ const userCart = asyncHandler(async (req, res) => {
 
 const getUserCart = asyncHandler(async (req, res) => {
   const { _id } = req.user;
-  if(validateMongoDbId(_id)){
+  if (!validateMongoDbId(_id)) {
     res.status(404).json({ message: "user not found" });
-  };
+  }
   try {
     const cart = await Cart.findOne({ user: _id }).populate("products.product");
     res.json(cart);
   } catch (error) {
     res.status(404).json({ message: error.message });
+  }
+});
+
+const removeItemFromUserCart = asyncHandler(async (req, res) => {
+  const { toRemove } = req.body;
+  const { _id } = req.user;
+
+  if (!validateMongoDbId(_id)) {
+    res.status(404).json({ message: "user not found" });
+  }
+  try {
+    const existingCart = await Cart.findOne({ user: _id });
+    const filtered = existingCart.products.filter((item) => {
+      return !toRemove.some((id) => id === item.product.toString());
+    });
+
+    let cartTotal = 0;
+    for (let i = 0; i < filtered.length; i++) {
+      cartTotal = cartTotal + filtered[i].price * filtered[i].count;
+    }
+
+    const updated = await Cart.findOneAndUpdate(
+      { _id: existingCart._id },
+      { products: filtered, cartTotal },
+      { new: true }
+    );
+    res.json(updated);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 });
 
@@ -590,6 +620,7 @@ module.exports = {
   getWishlist,
   saveAddress,
   userCart,
+  removeItemFromUserCart,
   getUserCart,
   emptyCart,
   applyCoupon,
