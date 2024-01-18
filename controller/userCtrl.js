@@ -20,7 +20,9 @@ const createUser = asyncHandler(async (req, res) => {
    * TODO:Get the email from req.body
    */
   const email = req.body.email;
-  if(!email){res.json(404).json({message:"Invalid Credentials"})}
+  if (!email) {
+    res.json(404).json({ message: "Invalid Credentials" });
+  }
   /**
    * TODO:With the help of email find the user exists or not
    */
@@ -38,7 +40,7 @@ const createUser = asyncHandler(async (req, res) => {
      * TODO:if user found then thow an error: User already exists
      */
     // throw new Error("User Already Exists");
-    res.json(400).json({message:"User Already Exists"})
+    res.json(400).json({ message: "User Already Exists" });
   }
 });
 
@@ -46,35 +48,35 @@ const createUser = asyncHandler(async (req, res) => {
 const loginUserCtrl = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   // check if user exists or not
- if(email,password){
-  const findUser = await User.findOne({ email });
-  if (findUser && (await findUser.isPasswordMatched(password))) {
-    const refreshToken = await generateRefreshToken(findUser?._id);
-    const updateuser = await User.findByIdAndUpdate(
-      findUser.id,
-      {
-        refreshToken: refreshToken,
-      },
-      { new: true }
-    );
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      maxAge: 72 * 60 * 60 * 1000,
-    });
-    res.json({
-      _id: findUser?._id,
-      firstname: findUser?.firstname,
-      lastname: findUser?.lastname,
-      email: findUser?.email,
-      mobile: findUser?.mobile,
-      token: generateToken(findUser?._id),
-    });
+  if ((email, password)) {
+    const findUser = await User.findOne({ email });
+    if (findUser && (await findUser.isPasswordMatched(password))) {
+      const refreshToken = await generateRefreshToken(findUser?._id);
+      const updateuser = await User.findByIdAndUpdate(
+        findUser.id,
+        {
+          refreshToken: refreshToken,
+        },
+        { new: true }
+      );
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        maxAge: 72 * 60 * 60 * 1000,
+      });
+      res.json({
+        _id: findUser?._id,
+        firstname: findUser?.firstname,
+        lastname: findUser?.lastname,
+        email: findUser?.email,
+        mobile: findUser?.mobile,
+        token: generateToken(findUser?._id),
+      });
+    } else {
+      res.status(404).json({ message: "Invalid Credentials" });
+    }
   } else {
-    res.status(404).json({ message: "Invalid Credentials" });
+    res.status(404).json({ message: "body not found" });
   }
- } else {
-  res.status(404).json({ message: "body not found" });
-}
 });
 
 // admin login
@@ -342,59 +344,93 @@ const resetPassword = asyncHandler(async (req, res) => {
 const getWishlist = asyncHandler(async (req, res) => {
   const { _id } = req.user;
   try {
-    const wishlist = await User.findById(_id,"wishlist").populate("wishlist");
+    const wishlist = await User.findById(_id, "wishlist").populate("wishlist");
     res.json(wishlist);
   } catch (error) {
-    res.status(404).json({message:error.message});
+    res.status(404).json({ message: error.message });
   }
 });
+
+async function manageCart(existingCart, itemsToInsert) {
+  let cartTotal = 0;
+  for (let i = 0; i < itemsToInsert.length; i++) {
+    if (
+      existingCart.some(
+        (item) => item.product.toString() === itemsToInsert[i]._id
+      )
+    ) {
+      for (let item of existingCart) {
+        if (item.product.toString() === itemsToInsert[i]._id) {
+          item.count += itemsToInsert[i].count ? itemsToInsert[i].count : 1;
+        }
+      }
+    } else {
+      let object = {};
+      object.product = itemsToInsert[i]._id;
+      let getPrice = await Product.findById(itemsToInsert[i]._id)
+        .select("price")
+        .exec();
+      object.price = parseInt(getPrice.price);
+      object.count = itemsToInsert[i].count ? itemsToInsert[i].count : 1;
+      existingCart.push(object);
+    }
+  }
+  for (let i = 0; i < existingCart.length; i++) {
+    cartTotal = cartTotal + existingCart[i].price * existingCart[i].count;
+  }
+  return { products: existingCart, cartTotal };
+}
 
 const userCart = asyncHandler(async (req, res) => {
   const { cart } = req.body;
   const { _id } = req.user;
-  validateMongoDbId(_id);
+  if (!validateMongoDbId(_id)) {
+    res.status(404).json({ message: "user id is not valid" });
+  }
   try {
-    let products = [];
-    const user = await User.findById(_id);
+    // let products = [];
+    const user = await User.findById(_id, { _id });
     // check if user already have product in cart
-    const alreadyExistCart = await Cart.findOne({ orderby: user._id });
-    if (alreadyExistCart) {
-      alreadyExistCart.remove();
+    if (!user._id) {
+      res.status(404).json({ message: "user not found" });
     }
-    for (let i = 0; i < cart.length; i++) {
-      let object = {};
-      object.product = cart[i]._id;
-      object.count = cart[i].count;
-      object.color = cart[i].color;
-      let getPrice = await Product.findById(cart[i]._id).select("price").exec();
-      object.price = getPrice.price;
-      products.push(object);
+
+    const alreadyExistCart = await Cart.findOne({ user: user._id });
+    if (alreadyExistCart?._id) {
+      const { products, cartTotal } = await manageCart(
+        [...alreadyExistCart.products],
+        cart
+      );
+      const updated = await Cart.findOneAndUpdate(
+        { _id: alreadyExistCart._id },
+        { products, cartTotal },
+        { new: true }
+      );
+      res.json(updated);
+    } else {
+      const { products, cartTotal } = await manageCart([], cart);
+      let newCart = await new Cart({
+        products,
+        cartTotal: cartTotal,
+        user: user?._id,
+      }).save();
+      res.json(newCart);
     }
-    let cartTotal = 0;
-    for (let i = 0; i < products.length; i++) {
-      cartTotal = cartTotal + products[i].price * products[i].count;
-    }
-    let newCart = await new Cart({
-      products,
-      cartTotal,
-      orderby: user?._id,
-    }).save();
-    res.json(newCart);
   } catch (error) {
-    throw new Error(error);
+    res.status(404).json({ message: error.message });
   }
 });
 
 const getUserCart = asyncHandler(async (req, res) => {
   const { _id } = req.user;
-  validateMongoDbId(_id);
+  if(validateMongoDbId(_id)){
+    res.status(404).json({ message: "user not found" });
+  };
   try {
-    const cart = await Cart.findOne({ orderby: _id }).populate(
-      "products.product"
-    );
+    const cart = await Cart.findOne({ user: _id }).populate("products.product");
     res.json(cart);
   } catch (error) {
-    throw new Error(error);
+    res.status(404).json({ message: error.message });
   }
 });
 
