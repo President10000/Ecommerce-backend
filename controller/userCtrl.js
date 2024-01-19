@@ -407,7 +407,7 @@ const userCart = asyncHandler(async (req, res) => {
         { _id: alreadyExistCart._id },
         { products, cartTotal },
         { new: true }
-      );
+      ).populate("products.product");
       res.json(updated);
     } else {
       const { products, cartTotal } = await putItemToCart([], cart);
