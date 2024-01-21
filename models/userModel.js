@@ -7,13 +7,13 @@ var userSchema = new mongoose.Schema(
     firstname: {
       type: String,
       required: true,
-      minLength:3,
-      maxLength:20
+      minLength: 3,
+      maxLength: 20,
     },
     lastname: {
       type: String,
       required: true,
-      maxLength:20
+      maxLength: 20,
     },
     email: {
       type: String,
@@ -24,14 +24,14 @@ var userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      maxLength:10,
-      minLength:10
+      maxLength: 10,
+      minLength: 10,
     },
     password: {
       type: String,
       required: true,
-      minLength:6,
-      maxLength:100
+      minLength: 6,
+      maxLength: 100,
     },
     role: {
       type: String,
@@ -45,9 +45,7 @@ var userSchema = new mongoose.Schema(
       type: Array,
       default: [],
     },
-    address: {
-      type: String,
-    },
+    address: [[{ lable: String, value: String }]],
     wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
     refreshToken: {
       type: String,

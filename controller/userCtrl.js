@@ -1,6 +1,7 @@
 const User = require("../models/userModel");
 const Product = require("../models/productModel");
 const Cart = require("../models/cartModel");
+const Address = require("../models/addressModel");
 const Coupon = require("../models/couponModel");
 const Order = require("../models/orderModel");
 const uniqid = require("uniqid");
@@ -185,25 +186,73 @@ const updatedUser = asyncHandler(async (req, res) => {
 
 // save user Address
 
-const saveAddress = asyncHandler(async (req, res, next) => {
+const saveAddress = asyncHandler(async (req, res) => {
   const { _id } = req.user;
-  validateMongoDbId(_id);
-
+  const {address}=req.body
+  if (!validateMongoDbId(_id)) {
+    res.status(404).json({ message: "user id is not valid" });
+  }
   try {
-    const updatedUser = await User.findByIdAndUpdate(
-      _id,
-      {
-        address: req?.body?.address,
-      },
-      {
-        new: true,
-      }
-    );
-    res.json(updatedUser);
+    let newAddress = await new Address({
+      address,
+      user: _id,
+    }).save();
+    res.json(newAddress);
   } catch (error) {
-    throw new Error(error);
+   res.status(400).json({message:error.message})
   }
 });
+const updateAddress = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  const {address}=req.body
+  if (!validateMongoDbId(_id)) {
+    res.status(404).json({ message: "user id is not valid" });
+  }
+  try {
+    const updated = await Address.findOneAndUpdate(
+      { _id: req.body._id },
+      { address },
+      { new: true }
+    )
+    res.json(updated);
+  } catch (error) {
+   res.status(400).json({message:error.message})
+  }
+});
+const deleteAddress = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  const {id}=req.query
+  if (!validateMongoDbId(_id)) {
+    res.status(404).json({ message: "user id is not valid" });
+  }
+  try {
+    const updated = await Address.findByIdAndDelete(id)
+    res.json(updated);
+  } catch (error) {
+   res.status(400).json({message:error.message})
+  }
+});
+
+const getAddress = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  const {user}=req.query
+  if(!user){
+    res.status(404).json({ message: "body not found" });
+  }
+  if (!validateMongoDbId(_id)) {
+    res.status(404).json({ message: "user id is not valid" });
+  }
+  try {
+    const updated = await Address.find({user})
+    res.json(updated);
+  } catch (error) {
+   res.status(400).json({message:error.message})
+  }
+});
+
+
+
+
 
 // Get all users
 
@@ -228,7 +277,7 @@ const getaUser = asyncHandler(async (req, res) => {
       getaUser,
     });
   } catch (error) {
-    throw new Error(error);
+    res.status(404).json({ message: error.message });
   }
 });
 
@@ -392,7 +441,6 @@ const userCart = asyncHandler(async (req, res) => {
     // let products = [];
     const user = await User.findById(_id, { _id });
     // check if user already have product in cart
-    console.log({ user });
     if (!user._id) {
       res.status(404).json({ message: "user not found" });
     }
@@ -458,7 +506,7 @@ const removeItemFromUserCart = asyncHandler(async (req, res) => {
       { _id: existingCart._id },
       { products: filtered, cartTotal },
       { new: true }
-    );
+    ).populate("products.product");
     res.json(updated);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -620,6 +668,9 @@ module.exports = {
   loginAdmin,
   getWishlist,
   saveAddress,
+  updateAddress,
+  deleteAddress,
+  getAddress,
   userCart,
   removeItemFromUserCart,
   getUserCart,
