@@ -62,7 +62,7 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
       );
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        maxAge: 72 * 60 * 60 * 1000,
+        maxAge: 60 * 60 * 24 * 30,
       });
       res.json({
         _id: findUser?._id,
@@ -100,7 +100,7 @@ const loginAdmin = asyncHandler(async (req, res) => {
       );
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        maxAge: 72 * 60 * 60 * 1000,
+        maxAge: 60 * 60 * 24 * 30,
       });
       res.json({
         _id: findAdmin?._id,
@@ -188,71 +188,74 @@ const updatedUser = asyncHandler(async (req, res) => {
 
 const saveAddress = asyncHandler(async (req, res) => {
   const { _id } = req.user;
-  const {address}=req.body
+  const { phone_no, zipcode } = req.body;
+  if (!zipcode || !phone_no) {
+    res.status(400).json({ message: `zipcode and phone no is required ` });
+  }
   if (!validateMongoDbId(_id)) {
     res.status(404).json({ message: "user id is not valid" });
   }
   try {
-    let newAddress = await new Address({
-      address,
-      user: _id,
-    }).save();
+    let newAddress = await new Address( { ...req.body, user: _id },).save();
     res.json(newAddress);
   } catch (error) {
-   res.status(400).json({message:error.message})
+    res.status(400).json({ message: error.message });
   }
 });
+
 const updateAddress = asyncHandler(async (req, res) => {
   const { _id } = req.user;
-  const {address}=req.body
+  const { address } = req.body;
+  const { phone_no, zipcode } = address;
+
+  if (!zipcode || !phone_no) {
+    res.status(400).json({ message: `zipcode and phone no is required ` });
+  }
   if (!validateMongoDbId(_id)) {
     res.status(404).json({ message: "user id is not valid" });
   }
   try {
     const updated = await Address.findOneAndUpdate(
       { _id: req.body._id },
-      { address },
+      address,
       { new: true }
-    )
+    );
     res.json(updated);
   } catch (error) {
-   res.status(400).json({message:error.message})
+    res.status(400).json({ message: error.message });
   }
 });
+
 const deleteAddress = asyncHandler(async (req, res) => {
   const { _id } = req.user;
-  const {id}=req.query
+  const { id } = req.query;
   if (!validateMongoDbId(_id)) {
     res.status(404).json({ message: "user id is not valid" });
   }
   try {
-    const updated = await Address.findByIdAndDelete(id)
+    const updated = await Address.findByIdAndDelete(id);
     res.json(updated);
   } catch (error) {
-   res.status(400).json({message:error.message})
+    res.status(400).json({ message: error.message });
   }
 });
 
 const getAddress = asyncHandler(async (req, res) => {
   const { _id } = req.user;
-  const {user}=req.query
-  if(!user){
+  const { user } = req.query;
+  if (!user) {
     res.status(404).json({ message: "body not found" });
   }
   if (!validateMongoDbId(_id)) {
     res.status(404).json({ message: "user id is not valid" });
   }
   try {
-    const updated = await Address.find({user})
+    const updated = await Address.find({ user });
     res.json(updated);
   } catch (error) {
-   res.status(400).json({message:error.message})
+    res.status(400).json({ message: error.message });
   }
 });
-
-
-
-
 
 // Get all users
 
@@ -394,7 +397,9 @@ const getWishlist = asyncHandler(async (req, res) => {
   const { populate } = req.query;
   const { _id } = req.user;
   try {
-    const wishlist = await User.findById(_id, "wishlist").populate(populate?populate:"");
+    const wishlist = await User.findById(_id, "wishlist").populate(
+      populate ? populate : ""
+    );
     res.json(wishlist);
   } catch (error) {
     res.status(404).json({ message: error.message });
