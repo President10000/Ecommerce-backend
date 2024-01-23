@@ -14,7 +14,7 @@ var instance = new Razorpay({
 
 const createOrder = expressAsyncHandler(async (req, res) => {
   const { _id } = req.user;
-  const { receipt, notes, couponApplied } = req.body;
+  const { receipt, notes, couponApplied,address } = req.body;
 
   if (!validateMongoDbId(_id)) {
     res.status(404).json({ message: "user id not valid" });
@@ -35,7 +35,7 @@ const createOrder = expressAsyncHandler(async (req, res) => {
       { _id: { $in: ids } },
       "quantity"
     );
-//## checking ordering quantity is available in stock or not 
+    //## checking ordering quantity is available in stock or not
     for (const itemToOrder of userCart.products) {
       const stock = productsToOrder.find(
         (item) => item._id.toString() === itemToOrder.product.toString()
@@ -57,9 +57,11 @@ const createOrder = expressAsyncHandler(async (req, res) => {
       { amount: finalAmout, currency: "INR", receipt, notes },
       async (err, order) => {
         if (!err?.error) {
-          await new orderModel({
+         const created= await new orderModel({
             products: userCart.products,
             paymentIntent: order,
+            paymentMode:"RAZORPAY",
+            address,
             orderby: user._id,
             orderStatus: "Processing",
           }).save();
@@ -74,9 +76,9 @@ const createOrder = expressAsyncHandler(async (req, res) => {
           });
           await productModel.bulkWrite(update, {});
 
-          res.json(order);
+          res.json(created);
         } else {
-          res.status(400).json({ message:err.error.description });
+          res.status(400).json({ message: err.error.description });
         }
       }
     );

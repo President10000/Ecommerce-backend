@@ -1,5 +1,5 @@
 const mongoose = require("mongoose"); // Erase if already required
-const addressModel = require("./addressModel");
+const {addressType} = require("./addressModel");
 
 // Declare the Schema of the Mongo model
 var orderSchema = new mongoose.Schema(
@@ -14,6 +14,15 @@ var orderSchema = new mongoose.Schema(
       },
     ],
     paymentIntent: {},
+
+    paymentMode: {
+      required:true,
+      type: String,
+      enum: [
+        "COD",
+        "RAZORPAY"
+      ],
+    },
     orderStatus: {
       type: String,
       default: "Not Processed",
@@ -25,7 +34,7 @@ var orderSchema = new mongoose.Schema(
         "Delivered",
       ],
     },
-    address:addressModel,
+    address:addressType,
     orderby: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
