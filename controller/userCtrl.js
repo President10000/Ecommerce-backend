@@ -1,7 +1,7 @@
 const User = require("../models/userModel");
 const Product = require("../models/productModel");
 const Cart = require("../models/cartModel");
-const Address = require("../models/addressModel");
+const {Address} = require("../models/addressModel");
 const Coupon = require("../models/couponModel");
 const Order = require("../models/orderModel");
 const uniqid = require("uniqid");
@@ -196,7 +196,7 @@ const saveAddress = asyncHandler(async (req, res) => {
     res.status(404).json({ message: "user id is not valid" });
   }
   try {
-    let newAddress = await new Address( { ...req.body, user: _id },).save();
+    let newAddress = await new Address({ ...req.body, user: _id }).save();
     res.json(newAddress);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -607,7 +607,7 @@ const getOrders = asyncHandler(async (req, res) => {
       .exec();
     res.json(userorders);
   } catch (error) {
-    throw new Error(error);
+    res.status(404).json({ message: error.message });
   }
 });
 
@@ -619,7 +619,7 @@ const getAllOrders = asyncHandler(async (req, res) => {
       .exec();
     res.json(alluserorders);
   } catch (error) {
-    throw new Error(error);
+    res.status(404).json({ message: error.message });
   }
 });
 const getOrderByUserId = asyncHandler(async (req, res) => {
@@ -632,27 +632,19 @@ const getOrderByUserId = asyncHandler(async (req, res) => {
       .exec();
     res.json(userorders);
   } catch (error) {
-    throw new Error(error);
+    res.status(404).json({ message: error.message });
   }
 });
 const updateOrderStatus = asyncHandler(async (req, res) => {
-  const { status } = req.body;
   const { id } = req.params;
   validateMongoDbId(id);
   try {
-    const updateOrderStatus = await Order.findByIdAndUpdate(
-      id,
-      {
-        orderStatus: status,
-        paymentIntent: {
-          status: status,
-        },
-      },
-      { new: true }
-    );
+    const updateOrderStatus = await Order.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
     res.json(updateOrderStatus);
   } catch (error) {
-    throw new Error(error);
+    res.status(404).json({ message: error.message });
   }
 });
 
