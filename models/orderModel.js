@@ -1,4 +1,5 @@
 const mongoose = require("mongoose"); // Erase if already required
+const addressModel = require("./addressModel");
 
 // Declare the Schema of the Mongo model
 var orderSchema = new mongoose.Schema(
@@ -24,6 +25,7 @@ var orderSchema = new mongoose.Schema(
         "Delivered",
       ],
     },
+    address:addressModel,
     orderby: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

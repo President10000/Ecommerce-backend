@@ -15,19 +15,13 @@ const colorRouter = require("./routes/colorRoute");
 const enqRouter = require("./routes/enqRoute");
 const couponRouter = require("./routes/couponRoute");
 const uploadRouter = require("./routes/uploadRoute");
+const razorpay = require("./routes/razorpay");
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 const cors = require("cors");
 
 dbConnect();
 app.use(morgan("dev"));
-// app.use(
-//   cors({
-//     origin: "https://techtreasure.vercel.app",
-//     origin: "https://raiappliances-admin-panel.vercel.app",
-//     credentials: true,
-//   })
-// );
 
 app.use(
   cors({
@@ -64,6 +58,7 @@ app.use("/api/coupon", couponRouter);
 app.use("/api/color", colorRouter);
 app.use("/api/enquiry", enqRouter);
 app.use("/api/upload", uploadRouter);
+app.use("/api/razorpay",razorpay );
 
 app.use(notFound);
 app.use(errorHandler);
