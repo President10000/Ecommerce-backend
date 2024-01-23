@@ -561,7 +561,7 @@ const createOrder = asyncHandler(async (req, res) => {
   try {
     if (!COD) throw new Error("Create cash order failed");
     const user = await User.findById(_id);
-    let userCart = await Cart.findOne({ orderby: user._id });
+    let userCart = await Cart.findOne({ user: user._id });
     let finalAmout = 0;
     if (couponApplied && userCart.totalAfterDiscount) {
       finalAmout = userCart.totalAfterDiscount;
@@ -580,7 +580,7 @@ const createOrder = asyncHandler(async (req, res) => {
         currency: "usd",
       },
       orderby: user._id,
-      orderStatus: "Cash on Delivery",
+      orderStatus: "Processing",
     }).save();
     let update = userCart.products.map((item) => {
       return {
