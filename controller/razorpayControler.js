@@ -41,7 +41,7 @@ const createOrder = expressAsyncHandler(async (req, res) => {
         (item) => item._id.toString() === itemToOrder.product.toString()
       );
       if (itemToOrder.count > stock?.quantity || !stock) {
-        // res.status(400).json({ message: "product already sold out" });
+        res.status(400).json({ message: "product already sold out" });
         throw new Error("product already sold out");
       }
     }

@@ -1,7 +1,7 @@
 const User = require("../models/userModel");
 const Product = require("../models/productModel");
 const Cart = require("../models/cartModel");
-const {Address} = require("../models/addressModel");
+const { Address } = require("../models/addressModel");
 const Coupon = require("../models/couponModel");
 const Order = require("../models/orderModel");
 const uniqid = require("uniqid");
@@ -85,36 +85,39 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
 const loginAdmin = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   // check if user exists or not
-  if (email && password) {
-    const findAdmin = await User.findOne({ email });
-    if (findAdmin.role !== "admin") {
-      res.status(404).json({ message: "you are not allowed" });
-    } else if (findAdmin && (await findAdmin.isPasswordMatched(password))) {
-      const refreshToken = await generateRefreshToken(findAdmin?._id);
-      const updateuser = await User.findByIdAndUpdate(
-        findAdmin.id,
-        {
-          refreshToken: refreshToken,
-        },
-        { new: true }
-      );
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        maxAge: 60 * 60 * 24 * 30,
-      });
-      res.json({
-        _id: findAdmin?._id,
-        firstname: findAdmin?.firstname,
-        lastname: findAdmin?.lastname,
-        email: findAdmin?.email,
-        mobile: findAdmin?.mobile,
-        token: generateToken(findAdmin?._id),
-      });
-    } else {
-      res.status(404).json({ message: "Invalid Credentials" });
-    }
+  if (!email || !password) {
+    res.status(404).json({ message: "Invalid Credentials" });
   } else {
-    res.status(404).json({ message: "body not found" });
+    try {
+      const findAdmin = await User.findOne({ email, role: "admin" });
+      console.log(findAdmin);
+      if (findAdmin && (await findAdmin.isPasswordMatched(password))) {
+        const refreshToken = await generateRefreshToken(findAdmin?._id);
+        await User.findByIdAndUpdate(
+          findAdmin._id,
+          {
+            refreshToken: refreshToken,
+          },
+          { new: true }
+        );
+        res.cookie("refreshToken", refreshToken, {
+          httpOnly: true,
+          maxAge: 60 * 60 * 24 * 30,
+        });
+        res.json({
+          _id: findAdmin?._id,
+          firstname: findAdmin?.firstname,
+          lastname: findAdmin?.lastname,
+          email: findAdmin?.email,
+          mobile: findAdmin?.mobile,
+          token: generateToken(findAdmin?._id),
+        });
+      } else {
+        res.status(404).json({ message: "Invalid Credentials" });
+      }
+    } catch (error) {
+      res.status(404).json({ message: error.message });
+    }
   }
 });
 
@@ -555,45 +558,73 @@ const applyCoupon = asyncHandler(async (req, res) => {
 });
 
 const createOrder = asyncHandler(async (req, res) => {
-  const { COD, couponApplied } = req.body;
+  const { receipt, notes, address, couponApplied } = req.body;
   const { _id } = req.user;
-  validateMongoDbId(_id);
-  try {
-    if (!COD) throw new Error("Create cash order failed");
-    const user = await User.findById(_id);
-    let userCart = await Cart.findOne({ user: user._id });
-    let finalAmout = 0;
-    if (couponApplied && userCart.totalAfterDiscount) {
-      finalAmout = userCart.totalAfterDiscount;
-    } else {
-      finalAmout = userCart.cartTotal;
-    }
+  if (!validateMongoDbId(_id)) {
+    res.status(404).json({ message: "invalid details" });
+    throw new Error("invalid details");
+  }
+  if (!address || !receipt || !notes) {
+    res.status(400).json({ message: "Create cash order failed" });
+    // throw new Error("Create cash order failed");
+  } else {
+    try {
+      const user = await User.findById(_id);
+      let userCart = await Cart.findOne({ user: user._id });
 
-    let newOrder = await new Order({
-      products: userCart.products,
-      paymentIntent: {
-        id: uniqid(),
-        method: "COD",
-        amount: finalAmout,
-        status: "Cash on Delivery",
-        created: Date.now(),
-        currency: "usd",
-      },
-      orderby: user._id,
-      orderStatus: "Processing",
-    }).save();
-    let update = userCart.products.map((item) => {
-      return {
-        updateOne: {
-          filter: { _id: item.product._id },
-          update: { $inc: { quantity: -item.count, sold: +item.count } },
+      const ids = userCart.products.map((item) => item.product);
+
+      const productsToOrder = await Product.find(
+        { _id: { $in: ids } },
+        "quantity"
+      );
+      //## checking ordering quantity is available in stock or not
+      for (const itemToOrder of userCart.products) {
+        const stock = productsToOrder.find(
+          (item) => item._id.toString() === itemToOrder.product.toString()
+        );
+        if (itemToOrder.count > stock?.quantity || !stock) {
+          res.status(400).json({ message: "product already sold out" });
+          throw new Error("product already sold out");
+        }
+      }
+      let finalAmout = 0;
+      if (couponApplied && userCart.totalAfterDiscount) {
+        finalAmout = userCart.totalAfterDiscount;
+      } else {
+        finalAmout = userCart.cartTotal;
+      }
+
+      let newOrder = await new Order({
+        products: userCart.products,
+        address,
+        paymentMode: "COD",
+        paymentIntent: {
+          id: uniqid(),
+          method: "COD",
+          amount: finalAmout,
+          amount_paid: 0,
+          amount_due: finalAmout,
+          status: "created",
+          created_at: Date.now(),
+          currency: "INR",
         },
-      };
-    });
-    const updated = await Product.bulkWrite(update, {});
-    res.json({ message: "success" });
-  } catch (error) {
-    throw new Error(error);
+        orderby: user._id,
+        orderStatus: "Processing",
+      }).save();
+      let update = userCart.products.map((item) => {
+        return {
+          updateOne: {
+            filter: { _id: item.product._id },
+            update: { $inc: { quantity: -item.count, sold: +item.count } },
+          },
+        };
+      });
+      await Product.bulkWrite(update, {});
+      res.json(newOrder);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
   }
 });
 
