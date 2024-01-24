@@ -14,7 +14,7 @@ var instance = new Razorpay({
 
 const createOrder = expressAsyncHandler(async (req, res) => {
   const { _id } = req.user;
-  const { receipt, notes, couponApplied,address } = req.body;
+  const { receipt, notes, couponApplied, address } = req.body;
 
   if (!validateMongoDbId(_id)) {
     res.status(404).json({ message: "user id not valid" });
@@ -41,7 +41,7 @@ const createOrder = expressAsyncHandler(async (req, res) => {
         (item) => item._id.toString() === itemToOrder.product.toString()
       );
       if (itemToOrder.count > stock?.quantity || !stock) {
-        // res.status(400).json({ message: "product already sold out" });
+        res.status(400).json({ message: "product already sold out" });
         throw new Error("product already sold out");
       }
     }
@@ -53,35 +53,33 @@ const createOrder = expressAsyncHandler(async (req, res) => {
       finalAmout = userCart.cartTotal;
     }
 
-    instance.orders.create(
-      { amount: finalAmout, currency: "INR", receipt, notes },
-      async (err, order) => {
-        if (!err?.error) {
-         const created= await new orderModel({
-            products: userCart.products,
-            paymentIntent: order,
-            paymentMode:"RAZORPAY",
-            address,
-            orderby: user._id,
-            orderStatus: "Processing",
-          }).save();
+    const paymentIntent = await instance.orders.create({
+      amount: finalAmout,
+      currency: "INR",
+      receipt,
+      notes,
+    });
 
-          let update = userCart.products.map((item) => {
-            return {
-              updateOne: {
-                filter: { _id: item.product._id },
-                update: { $inc: { quantity: -item.count, sold: +item.count } },
-              },
-            };
-          });
-          await productModel.bulkWrite(update, {});
+    const created = await new orderModel({
+      products: userCart.products,
+      paymentIntent: paymentIntent,
+      paymentMode: "RAZORPAY",
+      address,
+      orderby: user._id,
+      orderStatus: "Processing",
+    }).save();
 
-          res.json(created);
-        } else {
-          res.status(400).json({ message: err.error.description });
-        }
-      }
-    );
+    let update = userCart.products.map((item) => {
+      return {
+        updateOne: {
+          filter: { _id: item.product._id },
+          update: { $inc: { quantity: -item.count, sold: +item.count } },
+        },
+      };
+    });
+    await productModel.bulkWrite(update, {});
+
+    res.json(created);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

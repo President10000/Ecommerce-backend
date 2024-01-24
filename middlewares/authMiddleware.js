@@ -17,14 +17,14 @@ const authMiddleware = asyncHandler(async (req, res, next) => {
      res.status(400).json({message:error.message})
     }
   } else {
-    res.status(404).json({message:"you are not allowed"})
+    res.status(404).json({message:"Invalid Credentials"})
   }
 });
 const isAdmin = asyncHandler(async (req, res, next) => {
   const { email } = req.user;
   const adminUser = await User.findOne({ email });
   if (adminUser.role !== "admin") {
-    res.status(400).json({message:"you are not allowed"})
+    res.status(400).json({message:"Invalid Credentials"})
   } else {
     next();
   }
