@@ -36,7 +36,7 @@ var productSchema = new mongoose.Schema(
         },
       ],
     },
-    table:[{head:String,rows:[String]}],
+    table: [{ head: String, rows: [String] }],
     meta_data: [
       {
         key: String,
@@ -93,6 +93,7 @@ var productSchema = new mongoose.Schema(
       },
     ],
     tags: [String],
+    is_cod_availabe: Boolean,
     policy: {
       exchange: { status: Boolean, validity: Number },
       return_or_refund: { status: Boolean, validity: Number },
@@ -102,45 +103,6 @@ var productSchema = new mongoose.Schema(
     terms_and_conditions: [String],
     featured_on: [String],
     as_draft: { type: Boolean, default: true },
-    // feedback: {
-    //   summery: {
-    //     total_rating: { type: Number, default: 0 },
-    //     avarage_rating: { type: Number, default: 0 },
-    //     total_comment: { type: Number, default: 0 },
-    //   },
-    //   data: [
-    //     {
-    //       images: [
-    //         {
-    //           public_id: String,
-    //           asset_id: String,
-    //           url: String,
-    //           date: {
-    //             created: Date,
-    //             updated: Date,
-    //           },
-    //         },
-    //       ],
-    //       comment: {
-    //         value: String,
-    //         date: {
-    //           created: Date,
-    //           updated: Date,
-    //         },
-    //       },
-
-    //       rating: {
-    //         value: Number,
-    //         date: {
-    //           created: Date,
-    //           updated: Date,
-    //         },
-    //       },
-
-    //       postedby: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    //     },
-    //   ],
-    // },
   },
   { timestamps: true }
 );

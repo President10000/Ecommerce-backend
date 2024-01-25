@@ -14,19 +14,19 @@ const authMiddleware = asyncHandler(async (req, res, next) => {
         next();
       }
     } catch (error) {
-     res.status(400).json({message:error.message})
+      res.status(400).json({ message: error.message });
     }
   } else {
-    res.status(404).json({message:"Invalid Credentials"})
+    res.status(404).json({ message: "Invalid Credentials" });
   }
 });
 const isAdmin = asyncHandler(async (req, res, next) => {
   const { email } = req.user;
-  const adminUser = await User.findOne({ email });
-  if (adminUser.role !== "admin") {
-    res.status(400).json({message:"Invalid Credentials"})
-  } else {
+  const adminUser = await User.findOne({ email, role: "admin" });
+  if (adminUser?._id) {
     next();
+  } else {
+    res.status(400).json({ message: "Invalid Credentials" });
   }
 });
 module.exports = { authMiddleware, isAdmin };
