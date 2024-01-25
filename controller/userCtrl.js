@@ -166,9 +166,9 @@ const logout = asyncHandler(async (req, res) => {
 
 const updatedUser = asyncHandler(async (req, res) => {
   const { _id } = req.user;
-  validateMongoDbId(_id);
 
   try {
+    validateMongoDbId(_id);
     const updatedUser = await User.findByIdAndUpdate(
       _id,
       {
@@ -195,10 +195,9 @@ const saveAddress = asyncHandler(async (req, res) => {
   if (!zipcode || !phone_no) {
     res.status(400).json({ message: `zipcode and phone no is required ` });
   }
-  if (!validateMongoDbId(_id)) {
-    res.status(404).json({ message: "user id is not valid" });
-  }
+
   try {
+    validateMongoDbId(_id);
     let newAddress = await new Address({ ...req.body, user: _id }).save();
     res.json(newAddress);
   } catch (error) {
@@ -214,10 +213,9 @@ const updateAddress = asyncHandler(async (req, res) => {
   if (!zipcode || !phone_no) {
     res.status(400).json({ message: `zipcode and phone no is required ` });
   }
-  if (!validateMongoDbId(_id)) {
-    res.status(404).json({ message: "user id is not valid" });
-  }
+
   try {
+    validateMongoDbId(_id);
     const updated = await Address.findOneAndUpdate(
       { _id: req.body._id },
       address,
@@ -232,10 +230,9 @@ const updateAddress = asyncHandler(async (req, res) => {
 const deleteAddress = asyncHandler(async (req, res) => {
   const { _id } = req.user;
   const { id } = req.query;
-  if (!validateMongoDbId(_id)) {
-    res.status(404).json({ message: "user id is not valid" });
-  }
+
   try {
+    validateMongoDbId(_id);
     const updated = await Address.findByIdAndDelete(id);
     res.json(updated);
   } catch (error) {
@@ -249,10 +246,9 @@ const getAddress = asyncHandler(async (req, res) => {
   if (!user) {
     res.status(404).json({ message: "body not found" });
   }
-  if (!validateMongoDbId(_id)) {
-    res.status(404).json({ message: "user id is not valid" });
-  }
+
   try {
+    validateMongoDbId(_id);
     const updated = await Address.find({ user });
     res.json(updated);
   } catch (error) {
@@ -275,9 +271,9 @@ const getallUser = asyncHandler(async (req, res) => {
 
 const getaUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  validateMongoDbId(id);
 
   try {
+    validateMongoDbId(id);
     const getaUser = await User.findById(id);
     res.json({
       getaUser,
@@ -291,23 +287,23 @@ const getaUser = asyncHandler(async (req, res) => {
 
 const deleteaUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  validateMongoDbId(id);
 
   try {
+    validateMongoDbId(id);
     const deleteaUser = await User.findByIdAndDelete(id);
     res.json({
       deleteaUser,
     });
   } catch (error) {
-    throw new Error(error);
+    res.status(404).json({ message: error.message });
   }
 });
 
 const blockUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  validateMongoDbId(id);
 
   try {
+    validateMongoDbId(id);
     const blockusr = await User.findByIdAndUpdate(
       id,
       {
@@ -325,9 +321,9 @@ const blockUser = asyncHandler(async (req, res) => {
 
 const unblockUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  validateMongoDbId(id);
 
   try {
+    validateMongoDbId(id);
     const unblock = await User.findByIdAndUpdate(
       id,
       {
@@ -400,9 +396,8 @@ const getWishlist = asyncHandler(async (req, res) => {
   const { populate } = req.query;
   const { _id } = req.user;
   try {
-    const wishlist = await User.findById(_id, "wishlist").populate(
-      populate ? populate : ""
-    );
+    validateMongoDbId(_id);
+    const wishlist = await User.findById(_id, "wishlist").populate(populate);
     res.json(wishlist);
   } catch (error) {
     res.status(404).json({ message: error.message });
@@ -442,11 +437,9 @@ async function putItemToCart(existingCart, itemsToInsert) {
 const userCart = asyncHandler(async (req, res) => {
   const { cart } = req.body;
   const { _id } = req.user;
-  if (!validateMongoDbId(_id)) {
-    res.status(404).json({ message: "user id is not valid" });
-  }
+ 
   try {
-    // let products = [];
+    validateMongoDbId(_id);
     const user = await User.findById(_id, { _id });
     // check if user already have product in cart
     if (!user._id) {
@@ -481,10 +474,9 @@ const userCart = asyncHandler(async (req, res) => {
 
 const getUserCart = asyncHandler(async (req, res) => {
   const { _id } = req.user;
-  if (!validateMongoDbId(_id)) {
-    res.status(404).json({ message: "user not found" });
-  }
+ 
   try {
+    validateMongoDbId(_id);
     const cart = await Cart.findOne({ user: _id }).populate("products.product");
     res.json(cart);
   } catch (error) {
@@ -630,11 +622,11 @@ const createOrder = asyncHandler(async (req, res) => {
 
 const getOrders = asyncHandler(async (req, res) => {
   const { _id } = req.user;
-  validateMongoDbId(_id);
+  const { populate } = req.query;
   try {
-    const userorders = await Order.findOne({ orderby: _id })
-      .populate("products.product")
-      .populate("orderby")
+    validateMongoDbId(_id);
+    const userorders = await Order.find({ orderby: _id })
+      .populate(populate)
       .exec();
     res.json(userorders);
   } catch (error) {
@@ -643,33 +635,33 @@ const getOrders = asyncHandler(async (req, res) => {
 });
 
 const getAllOrders = asyncHandler(async (req, res) => {
+  const { populate } = req.query;
   try {
-    const alluserorders = await Order.find()
-      .populate("products.product")
-      .populate("orderby")
-      .exec();
+    const alluserorders = await Order.find().populate(populate).exec();
     res.json(alluserorders);
   } catch (error) {
     res.status(404).json({ message: error.message });
   }
 });
+
 const getOrderByUserId = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  validateMongoDbId(id);
+  const { populate } = req.query;
   try {
-    const userorders = await Order.findOne({ orderby: id })
-      .populate("products.product")
-      .populate("orderby")
+    validateMongoDbId(id);
+    const userorders = await Order.find({ orderby: id })
+      .populate(populate)
       .exec();
     res.json(userorders);
   } catch (error) {
     res.status(404).json({ message: error.message });
   }
 });
+
 const updateOrderStatus = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  validateMongoDbId(id);
   try {
+    validateMongoDbId(id);
     const updateOrderStatus = await Order.findByIdAndUpdate(id, req.body, {
       new: true,
     });

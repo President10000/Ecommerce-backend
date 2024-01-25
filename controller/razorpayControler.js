@@ -16,10 +16,7 @@ const createOrder = expressAsyncHandler(async (req, res) => {
   const { _id } = req.user;
   const { receipt, notes, couponApplied, address } = req.body;
 
-  if (!validateMongoDbId(_id)) {
-    res.status(404).json({ message: "user id not valid" });
-    throw new Error("user id not valid");
-  }
+
 
   if (!receipt || !notes) {
     res.status(404).json({ message: "recipt and notes are required" });
@@ -27,6 +24,7 @@ const createOrder = expressAsyncHandler(async (req, res) => {
   }
 
   try {
+    validateMongoDbId(_id)
     const user = await userModel.findById(_id);
     let userCart = await cartModel.findOne({ user: user._id });
     const ids = userCart.products.map((item) => item.product);

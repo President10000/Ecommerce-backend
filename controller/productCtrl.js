@@ -28,7 +28,7 @@ const createProduct = asyncHandler(async (req, res) => {
 
 const updateProduct = asyncHandler(async (req, res) => {
   const id = req.params;
-  if (validateMongoDbId(id)) {
+
     const { title, price, category, quantity, as_draft } = req.body;
     // console.log(category)
     if (!as_draft) {
@@ -39,6 +39,7 @@ const updateProduct = asyncHandler(async (req, res) => {
       }
     }
     try {
+      validateMongoDbId(id)
       if (title) {
         req.body.slug = slugify(req.body.title);
         const updateProduct = await Product.findOneAndUpdate(
@@ -56,15 +57,13 @@ const updateProduct = asyncHandler(async (req, res) => {
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
-  } else {
-    res.status(400).json({ message: "invalid id" });
-  }
+  
 });
 
 const deleteProduct = asyncHandler(async (req, res) => {
   const id = req.params;
-  validateMongoDbId(id);
   try {
+    validateMongoDbId(id);
     const deleteProduct = await Product.findOneAndDelete(id);
     res.json(deleteProduct);
   } catch (error) {
@@ -74,8 +73,8 @@ const deleteProduct = asyncHandler(async (req, res) => {
 
 const getaProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  validateMongoDbId(id);
   try {
+    validateMongoDbId(id);
     const findProduct = await Product.findById(id);
     res.json(findProduct);
   } catch (error) {
@@ -135,8 +134,8 @@ const addToWishlist = asyncHandler(async (req, res) => {
   const { _id } = req.user;
 
   const { prodId } = req.body;
-  validateMongoDbId(prodId);
   try {
+    validateMongoDbId(prodId);
     const user = await User.findById(_id);
     const alreadyadded = user.wishlist.find((id) => id.toString() === prodId);
 
