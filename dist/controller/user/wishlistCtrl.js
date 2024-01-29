@@ -24,30 +24,30 @@ const createOrDeleteItem = (0, express_async_handler_1.default)((req, res) => __
     if (!req.user)
         throw new Error("user not found");
     const { _id } = req.user;
-    const { id: body_id } = req.body;
-    const { id: param_id } = req.params;
-    const { id: query_id } = req.query;
-    let id = param_id || query_id || body_id;
-    try {
-        (0, validateMongodbId_1.validateMongoDbId)(id);
-        // const user = await User.findById(_id);
-        const alreadyadded = yield wishlistModel_1.default.findOne({ user: _id, _id: id });
-        if (alreadyadded) {
-            let product = yield wishlistModel_1.default.deleteOne({ _id: alreadyadded._id });
-            res.json({ status: "removed", product });
-        }
-        else {
-            const added = yield new wishlistModel_1.default({
-                product: id,
-                user: _id,
-            }).save();
-            res.json({ status: "removed", product: added });
-        }
-    }
-    catch (error) {
-        console.error(error);
-        res.status(500).send("Internal server error");
-    }
+    // const { id: body_id } = req.body;
+    const { id } = req.params;
+    // const { id: query_id } = req.query;
+    // let id = param_id || query_id || body_id;
+    console.log({ id });
+    res.json({ status: "removed", product: "added" });
+    // try {
+    //   validateMongoDbId(id);
+    //   // const user = await User.findById(_id);
+    //   const alreadyadded = await wishlistModel.findOne({ user: _id, _id: id });
+    //   if (alreadyadded) {
+    //     let product = await wishlistModel.deleteOne({ _id: alreadyadded._id });
+    //     res.json({ status: "removed", product });
+    //   } else {
+    //     const added = await new wishlistModel({
+    //       product: id,
+    //       user: _id,
+    //     }).save();
+    //     res.json({ status: "removed", product: added });
+    //   }
+    // } catch (error) {
+    //   console.error(error);
+    //   res.status(500).send("Internal server error");
+    // }
 }));
 exports.createOrDeleteItem = createOrDeleteItem;
 const getWishlistByUser = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {

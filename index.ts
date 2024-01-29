@@ -8,7 +8,6 @@ import { notFound, errorHandler } from "./middlewares/errorHandler";
 const app = express();
 // const dotenv = require("dotenv").config();
 import dotenv from "dotenv";
-const PORT = process.env.PORT || 4000;
 // const userRouter = require("./routes/user/userRoute");
 import userRouter from "./routes/user/userRoute";
 // const productRouter = require("./routes/productRoute");
@@ -33,8 +32,9 @@ import morgan from "morgan";
 
 // const cors = require("cors");
 import cors from "cors";
-
 dotenv.config();
+
+const PORT = process.env.PORT || 4000;
 dbConnect();
 app.use(morgan("dev"));
 
@@ -44,7 +44,7 @@ app.use(
       origin: string | undefined,
       callback: (err: Error | null, allowed: boolean) => void
     ) => {
-      if (typeof origin === "string") {
+      if (origin) {
         const allowedOrigins = [
           "https://techtreasure.vercel.app",
           "https://raiappliances-admin-panel.vercel.app",

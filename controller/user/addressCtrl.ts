@@ -30,9 +30,8 @@ const updateAddress = asyncHandler(
   async (req: Req_with_user, res: Response) => {
     if (!req.user) throw new Error("user not found");
     // const { _id } = req.user;
-    const { id: param_id } = req.params;
-    const { id: query_id } = req.query;
-    let id = param_id || (query_id as string);
+    const { id} = req.params;
+    // const { id: query_id } = req.query;
     const { address } = req.body;
     const { phone_no, zipcode } = address;
 
@@ -57,9 +56,8 @@ const deleteAddress = asyncHandler(
   async (req: Req_with_user, res: Response) => {
     if (!req.user) throw new Error("user not found");
     // const { _id } = req.user;
-    const { id: param_id } = req.params;
-    const { id: query_id } = req.query;
-    let id = param_id || (query_id as string);
+    const { id } = req.params;
+    // const { id: query_id } = req.query;
 
     try {
       validateMongoDbId(id);
@@ -75,9 +73,8 @@ const deleteAddress = asyncHandler(
 const getAddressByUser = asyncHandler(async (req: Req_with_user, res) => {
   if (!req.user) throw new Error("user not found");
   const { _id } = req.user;
-  const { id: param_id } = req.params;
-  const { id: query_id } = req.query;
-  let id =_id|| param_id || (query_id as string);
+  const { id } = req.params;
+  // const { id: query_id } = req.query;
   try {
     validateMongoDbId(id);
     const updated = await Address.find({ user: id });
@@ -91,9 +88,8 @@ const getAddressByUser = asyncHandler(async (req: Req_with_user, res) => {
 const getAddressById = asyncHandler(async (req:Req_with_user, res:Response) => {
   if (!req.user) throw new Error("user not found");
   // const { _id } = req.user;
-  const { id: param_id } = req.params;
-  const { id: query_id } = req.query;
-  let id = param_id || (query_id as string);
+  const { id } = req.params;
+  // const { id: query_id } = req.query;
 
   try {
     validateMongoDbId(id);

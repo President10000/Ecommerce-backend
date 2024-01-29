@@ -52,13 +52,19 @@ const addItemToCart = asyncHandler(
     try {
       if (!product || !quantity || !_id) throw new Error("missing details");
       validateMongoDbId(_id);
-      let newCart = await new Cart({
-        product,
-        quantity,
-        user: _id,
-      }).save();
-      res.json(newCart);
-      // }
+      const isExist= await Cart.findOne({product})
+      if(isExist){
+        const updateQty= await Cart.findOneAndUpdate({product,user:_id},{quantity:isExist.quantity+quantity})
+        res.json(updateQty);
+      }else{
+        
+        let newCart = await new Cart({
+          product,
+          quantity,
+          user: _id,
+        }).save();
+        res.json(newCart);
+      }
     } catch (error) {
       console.error(error);
       res.status(500).send("Internal server error");

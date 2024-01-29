@@ -59,13 +59,19 @@ const addItemToCart = (0, express_async_handler_1.default)((req, res) => __await
         if (!product || !quantity || !_id)
             throw new Error("missing details");
         (0, validateMongodbId_1.validateMongoDbId)(_id);
-        let newCart = yield new cartModel_1.default({
-            product,
-            quantity,
-            user: _id,
-        }).save();
-        res.json(newCart);
-        // }
+        const isExist = yield cartModel_1.default.findOne({ product });
+        if (isExist) {
+            const updateQty = yield cartModel_1.default.findOneAndUpdate({ product, user: _id }, { quantity: isExist.quantity + quantity });
+            res.json(updateQty);
+        }
+        else {
+            let newCart = yield new cartModel_1.default({
+                product,
+                quantity,
+                user: _id,
+            }).save();
+            res.json(newCart);
+        }
     }
     catch (error) {
         console.error(error);

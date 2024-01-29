@@ -47,7 +47,7 @@ const createUser = asyncHandler(async (req: Request, res: Response) => {
      * TODO:if user found then thow an error: User already exists
      */
     // throw new Error("User Already Exists");
-    res.json(400).json({ message: "User Already Exists" });
+    res.status(400).json({ message: "User Already Exists" });
   }
 });
 
@@ -180,9 +180,9 @@ const updatedUser = asyncHandler(async (req: Req_with_user, res: Response) => {
   if (!req.user) throw new Error("user not found");
   const {_id} = req.user;
   const { id: body_id } = req.body;
-  const { id: param_id } = req.params;
+  // const { id: param_id } = req.params;
   const { id: query_id } = req.query;
-  let id =_id|| param_id || query_id || body_id;
+  let id =_id||  query_id || body_id;
   try {
     validateMongoDbId(id);
     const updatedUser = await User.findByIdAndUpdate(
@@ -204,75 +204,6 @@ const updatedUser = asyncHandler(async (req: Req_with_user, res: Response) => {
   }
 });
 
-// save user Address
-
-// const saveAddress = asyncHandler(async (req, res) => {
-//   const { _id } = req.user;
-//   const { phone_no, zipcode } = req.body;
-//   if (!zipcode || !phone_no) {
-//     res.status(400).json({ message: `zipcode and phone no is required ` });
-//   }
-
-//   try {
-//     validateMongoDbId(_id);
-//     let newAddress = await new Address({ ...req.body, user: _id }).save();
-//     res.json(newAddress);
-//   } catch (error) {
-//     res.status(400).json({ message: error.message });
-//   }
-// });
-
-// const updateAddress = asyncHandler(async (req, res) => {
-//   const { _id } = req.user;
-//   const { id } = req.params;
-//   const { address } = req.body;
-//   const { phone_no, zipcode } = address;
-
-//   if (!zipcode || !phone_no) {
-//     res.status(400).json({ message: `zipcode and phone no is required ` });
-//   }
-
-//   try {
-//     validateMongoDbId(_id);
-//     const updated = await Address.findOneAndUpdate(
-//       { _id: id },
-//       address,
-//       { new: true }
-//     );
-//     res.json(updated);
-//   } catch (error) {
-//     res.status(400).json({ message: error.message });
-//   }
-// });
-
-// const deleteAddress = asyncHandler(async (req, res) => {
-//   const { _id } = req.user;
-//   const { id } = req.params;
-
-//   try {
-//     validateMongoDbId(_id);
-//     const updated = await Address.findByIdAndDelete(id);
-//     res.json(updated);
-//   } catch (error) {
-//     res.status(400).json({ message: error.message });
-//   }
-// });
-
-// const getAddress = asyncHandler(async (req, res) => {
-//   const { _id } = req.user;
-//   const { user } = req.query;
-//   if (!user) {
-//     res.status(404).json({ message: "body not found" });
-//   }
-// console.log("got-------------")
-//   try {
-//     validateMongoDbId(_id);
-//     const updated = await Address.find({ user });
-//     res.json(updated);
-//   } catch (error) {
-//     res.status(400).json({ message: error.message });
-//   }
-// });
 
 // Get all users
 
@@ -289,10 +220,9 @@ const getallUser = asyncHandler(async (req: Request, res: Response) => {
 // Get a single user
 
 const getaUser = asyncHandler(async (req: Request, res: Response) => {
-  const { id: body_id } = req.body;
-  const { id: param_id } = req.params;
-  const { id: query_id } = req.query;
-  let id = param_id || query_id || body_id;
+  // const { id: body_id } = req.body;
+  const { id } = req.params;
+  // const { id: query_id } = req.query;
   try {
     validateMongoDbId(id);
     const user = await User.findById(id);
@@ -306,10 +236,9 @@ const getaUser = asyncHandler(async (req: Request, res: Response) => {
 // Get a single user
 
 const deleteaUser = asyncHandler(async (req: Request, res: Response) => {
-  const { id: body_id } = req.body;
-    const { id: param_id } = req.params;
-    const { id: query_id } = req.query;
-    let id = param_id || query_id || body_id;
+  // const { id: body_id } = req.body;
+    const { id } = req.params;
+    // const { id: query_id } = req.query;
 
   try {
     validateMongoDbId(id);
@@ -324,10 +253,8 @@ const deleteaUser = asyncHandler(async (req: Request, res: Response) => {
 });
 
 const blockUser = asyncHandler(async (req: Request, res: Response) => {
-  const { id: body_id } = req.body;
-  const { id: param_id } = req.params;
-  const { id: query_id } = req.query;
-  let id = param_id || query_id || body_id;
+  // const { id: body_id } = req.body;
+  const { id } = req.params;
 
   try {
     validateMongoDbId(id);
@@ -348,10 +275,8 @@ const blockUser = asyncHandler(async (req: Request, res: Response) => {
 });
 
 const unblockUser = asyncHandler(async (req: Request, res: Response) => {
-  const { id: body_id } = req.body;
-  const { id: param_id } = req.params;
-  const { id: query_id } = req.query;
-  let id = param_id || query_id || body_id;
+  // const { id: body_id } = req.body;
+  const { id } = req.params;
 
   try {
     validateMongoDbId(id);
@@ -373,331 +298,6 @@ const unblockUser = asyncHandler(async (req: Request, res: Response) => {
   }
 });
 
-// const updatePassword = asyncHandler(async (req, res) => {
-//   const { _id } = req.user;
-//   const { password } = req.body;
-//   validateMongoDbId(_id);
-//   const user = await User.findById(_id);
-//   if (password) {
-//     user.password = password;
-//     const updatedPassword = await user.save();
-//     res.json(updatedPassword);
-//   } else {
-//     res.json(user);
-//   }
-// });
-
-// const forgotPasswordToken = asyncHandler(async (req, res) => {
-//   const { email } = req.body;
-//   const user = await User.findOne({ email });
-//   if (!user) throw new Error("User not found with this email");
-//   try {
-//     const token = await user.createPasswordResetToken();
-//     await user.save();
-//     const resetURL = `Hi, Please follow this link to reset Your Password. This link is valid till 10 minutes from now. <a href='http://localhost:5000/api/user/reset-password/${token}'>Click Here</>`;
-//     const data = {
-//       to: email,
-//       text: "Hey User",
-//       subject: "Forgot Password Link",
-//       htm: resetURL,
-//     };
-//     sendEmail(data);
-//     res.json(token);
-//   } catch (error) {
-//     throw new Error(error);
-//   }
-// });
-
-// const resetPassword = asyncHandler(async (req, res) => {
-//   const { password } = req.body;
-//   const { token } = req.params;
-//   const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-//   const user = await User.findOne({
-//     passwordResetToken: hashedToken,
-//     passwordResetExpires: { $gt: Date.now() },
-//   });
-//   if (!user) throw new Error(" Token Expired, Please try again later");
-//   user.password = password;
-//   user.passwordResetToken = undefined;
-//   user.passwordResetExpires = undefined;
-//   await user.save();
-//   res.json(user);
-// });
-
-// const getWishlist = asyncHandler(async (req, res) => {
-//   const { populate } = req.query;
-//   const { _id } = req.user;
-//   try {
-//     validateMongoDbId(_id);
-//     const wishlist = await User.findById(_id, "wishlist").populate(populate);
-//     res.json(wishlist);
-//   } catch (error) {
-//     res.status(404).json({ message: error.message });
-//   }
-// });
-
-// async function putItemToCart(existingCart, itemsToInsert) {
-//   let cartTotal = 0;
-//   for (let i = 0; i < itemsToInsert.length; i++) {
-//     if (
-//       existingCart.some(
-//         (item) => item.product.toString() === itemsToInsert[i]._id
-//       )
-//     ) {
-//       for (let item of existingCart) {
-//         if (item.product.toString() === itemsToInsert[i]._id) {
-//           item.count += itemsToInsert[i].count ? itemsToInsert[i].count : 1;
-//         }
-//       }
-//     } else {
-//       let object = {};
-//       object.product = itemsToInsert[i]._id;
-//       let getPrice = await Product.findById(itemsToInsert[i]._id)
-//         .select("price")
-//         .exec();
-//       object.price = parseInt(getPrice.price);
-//       object.count = itemsToInsert[i].count ? itemsToInsert[i].count : 1;
-//       existingCart.push(object);
-//     }
-//   }
-//   for (let i = 0; i < existingCart.length; i++) {
-//     cartTotal = cartTotal + existingCart[i].price * existingCart[i].count;
-//   }
-//   return { products: existingCart, cartTotal };
-// }
-
-// const userCart = asyncHandler(async (req, res) => {
-//   const { cart } = req.body;
-//   const { _id } = req.user;
-
-//   try {
-//     validateMongoDbId(_id);
-//     const user = await User.findById(_id, { _id });
-//     // check if user already have product in cart
-//     if (!user._id) {
-//       res.status(404).json({ message: "user not found" });
-//     }
-
-//     const alreadyExistCart = await Cart.findOne({ user: user._id });
-//     if (alreadyExistCart?._id) {
-//       const { products, cartTotal } = await putItemToCart(
-//         [...alreadyExistCart.products],
-//         cart
-//       );
-//       const updated = await Cart.findOneAndUpdate(
-//         { _id: alreadyExistCart._id },
-//         { products, cartTotal },
-//         { new: true }
-//       ).populate("products.product");
-//       res.json(updated);
-//     } else {
-//       const { products, cartTotal } = await putItemToCart([], cart);
-//       let newCart = await new Cart({
-//         products,
-//         cartTotal: cartTotal,
-//         user: user?._id,
-//       }).save();
-//       res.json(newCart);
-//     }
-//   } catch (error) {
-//     res.status(404).json({ message: error.message });
-//   }
-// });
-
-// const getUserCart = asyncHandler(async (req, res) => {
-//   const { _id } = req.user;
-
-//   try {
-//     validateMongoDbId(_id);
-//     const cart = await Cart.findOne({ user: _id }).populate("products.product");
-//     res.json(cart);
-//   } catch (error) {
-//     res.status(404).json({ message: error.message });
-//   }
-// });
-
-// const removeItemFromUserCart = asyncHandler(async (req, res) => {
-//   const { toRemove } = req.body;
-//   const { _id } = req.user;
-
-//   try {
-//     validateMongoDbId(_id)
-//     const existingCart = await Cart.findOne({ user: _id });
-//     const filtered = existingCart.products.filter((item) => {
-//       return !toRemove.some((id) => id === item.product.toString());
-//     });
-
-//     let cartTotal = 0;
-//     for (let i = 0; i < filtered.length; i++) {
-//       cartTotal = cartTotal + filtered[i].price * filtered[i].count;
-//     }
-
-//     const updated = await Cart.findOneAndUpdate(
-//       { _id: existingCart._id },
-//       { products: filtered, cartTotal },
-//       { new: true }
-//     ).populate("products.product");
-//     res.json(updated);
-//   } catch (error) {
-//     res.status(400).json({ message: error.message });
-//   }
-// });
-
-// const emptyCart = asyncHandler(async (req, res) => {
-//   const { _id } = req.user;
-//   try {
-//     validateMongoDbId(_id);
-//     const user = await User.findOne({ _id });
-//     const cart = await Cart.findOneAndRemove({ orderby: user._id });
-//     res.json(cart);
-//   } catch (error) {
-//     throw new Error(error);
-//   }
-// });
-
-// const applyCoupon = asyncHandler(async (req, res) => {
-//   const { coupon } = req.body;
-//   const { _id } = req.user;
-//   validateMongoDbId(_id);
-//   const validCoupon = await Coupon.findOne({ name: coupon });
-//   if (validCoupon === null) {
-//     throw new Error("Invalid Coupon");
-//   }
-//   const user = await User.findOne({ _id });
-//   let { cartTotal } = await Cart.findOne({
-//     orderby: user._id,
-//   }).populate("products.product");
-//   let totalAfterDiscount = (
-//     cartTotal -
-//     (cartTotal * validCoupon.discount) / 100
-//   ).toFixed(2);
-//   await Cart.findOneAndUpdate(
-//     { orderby: user._id },
-//     { totalAfterDiscount },
-//     { new: true }
-//   );
-//   res.json(totalAfterDiscount);
-// });
-
-// const createOrder = asyncHandler(async (req, res) => {
-//   const { receipt, notes, address, couponApplied } = req.body;
-//   const { _id } = req.user;
-
-//   if (!address || !receipt || !notes) {
-//     res.status(400).json({ message: "Create cash order failed" });
-//     // throw new Error("Create cash order failed");
-//   } else {
-//     try {
-//       validateMongoDbId(_id);
-//       const user = await User.findById(_id);
-//       let userCart = await Cart.findOne({ user: user._id });
-
-//       const ids = userCart.products.map((item) => item.product);
-
-//       const productsToOrder = await Product.find(
-//         { _id: { $in: ids } },
-//         "quantity"
-//       );
-//       //## checking ordering quantity is available in stock or not
-//       for (const itemToOrder of userCart.products) {
-//         const stock = productsToOrder.find(
-//           (item) => item._id.toString() === itemToOrder.product.toString()
-//         );
-//         if (itemToOrder.count > stock?.quantity || !stock) {
-//           res.status(400).json({ message: "product already sold out" });
-//           throw new Error("product already sold out");
-//         }
-//       }
-//       let finalAmout = 0;
-//       if (couponApplied && userCart.totalAfterDiscount) {
-//         finalAmout = userCart.totalAfterDiscount;
-//       } else {
-//         finalAmout = userCart.cartTotal;
-//       }
-
-//       let newOrder = await new Order({
-//         products: userCart.products,
-//         address,
-//         paymentMode: "COD",
-//         paymentIntent: {
-//           id: uniqid(),
-//           method: "COD",
-//           amount: finalAmout,
-//           amount_paid: 0,
-//           amount_due: finalAmout,
-//           status: "created",
-//           created_at: Date.now(),
-//           currency: "INR",
-//         },
-//         orderby: user._id,
-//         orderStatus: "Processing",
-//       }).save();
-//       let update = userCart.products.map((item) => {
-//         return {
-//           updateOne: {
-//             filter: { _id: item.product._id },
-//             update: { $inc: { quantity: -item.count, sold: +item.count } },
-//           },
-//         };
-//       });
-//       await Product.bulkWrite(update, {});
-//       res.json(newOrder);
-//     } catch (error) {
-//       res.status(400).json({ message: error.message });
-//     }
-//   }
-// });
-
-// const getOrders = asyncHandler(async (req, res) => {
-//   const { _id } = req.user;
-//   const { populate } = req.query;
-//   try {
-//     validateMongoDbId(_id);
-//     const userorders = await Order.find({ orderby: _id })
-//       .populate(populate)
-//       .exec();
-//     res.json(userorders);
-//   } catch (error) {
-//     res.status(404).json({ message: error.message });
-//   }
-// });
-
-// const getAllOrders = asyncHandler(async (req, res) => {
-//   const { populate } = req.query;
-//   try {
-//     const alluserorders = await Order.find().populate(populate).exec();
-//     res.json(alluserorders);
-//   } catch (error) {
-//     res.status(404).json({ message: error.message });
-//   }
-// });
-
-// const getOrderByUserId = asyncHandler(async (req, res) => {
-//   const { id } = req.params;
-//   const { populate } = req.query;
-//   try {
-//     validateMongoDbId(id);
-//     const userorders = await Order.find({ orderby: id })
-//       .populate(populate)
-//       .exec();
-//     res.json(userorders);
-//   } catch (error) {
-//     res.status(404).json({ message: error.message });
-//   }
-// });
-
-// const updateOrderStatus = asyncHandler(async (req, res) => {
-//   const { id } = req.params;
-//   try {
-//     validateMongoDbId(id);
-//     const updateOrderStatus = await Order.findByIdAndUpdate(id, req.body, {
-//       new: true,
-//     });
-//     res.json(updateOrderStatus);
-//   } catch (error) {
-//     res.status(404).json({ message: error.message });
-//   }
-// });
 
 export {
   createUser,
@@ -711,22 +311,4 @@ export {
   handleRefreshToken,
   logout,
   loginAdmin,
-  // updatePassword,
-  // forgotPasswordToken,
-  // resetPassword,
-  // getWishlist,
-  // saveAddress,
-  // updateAddress,
-  // deleteAddress,
-  // getAddress,
-  // userCart,
-  // removeItemFromUserCart,
-  // getUserCart,
-  // emptyCart,
-  // applyCoupon,
-  // createOrder,
-  // getOrders,
-  // updateOrderStatus,
-  // getAllOrders,
-  // getOrderByUserId,
 };

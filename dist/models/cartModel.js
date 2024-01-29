@@ -9,11 +9,13 @@ var cartSchema = new mongoose_1.default.Schema({
     product: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: "Product",
+        required: true
     },
-    quantity: Number,
+    quantity: { type: Number, required: true },
     user: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: "User",
+        required: true
     },
 }, {
     timestamps: true,

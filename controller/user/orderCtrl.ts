@@ -173,8 +173,8 @@ const getOrdersByUser = asyncHandler(
     if (!req.user) throw new Error("user not found");
     let { _id } = req.user;
     const { id: param_id } = req.params;
-    const { populate, id: query_id } = req.query;
-    _id = _id || param_id || (query_id as string);
+    const { populate} = req.query;
+    _id = _id || param_id //|| (query_id as string);
     try {
       validateMongoDbId(_id);
       const userorders = await Order.find({ user: _id })
@@ -203,8 +203,7 @@ const getAllOrders = asyncHandler(async (req, res) => {
 
 const getOrderById = asyncHandler(async (req, res) => {
   let { id } = req.params;
-  const { populate, id: query_id } = req.query;
-  id = id || (query_id as string);
+  const { populate } = req.query;
   try {
     validateMongoDbId(id);
     const userorders = await Order.find({ _id: id }).populate(
@@ -219,8 +218,7 @@ const getOrderById = asyncHandler(async (req, res) => {
 
 const updateOrderStatus = asyncHandler(async (req, res) => {
   let { id } = req.params;
-  const { populate, id: query_id } = req.query;
-  id = id || (query_id as string);
+  const { populate } = req.query;
   try {
     validateMongoDbId(id);
     const updateOrderStatus = await Order.findByIdAndUpdate(id, req.body, {

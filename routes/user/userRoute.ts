@@ -48,7 +48,7 @@ router.use("/address", addressRoutes);
 router.put("/edit", authMiddleware, updatedUser);
 
 router.get("/find/:id", authMiddleware, isAdmin, getaUser);
-router.get("/find-all", authMiddleware, isAdmin, getallUser);
+router.get("/find", authMiddleware, isAdmin, getallUser);
 router.put("/block/:id", authMiddleware, isAdmin, blockUser);
 router.put("/unblock/:id", authMiddleware, isAdmin, unblockUser);
 router.delete("/delete/:id", authMiddleware, isAdmin, deleteaUser);

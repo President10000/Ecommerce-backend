@@ -56,7 +56,7 @@ const createUser = (0, express_async_handler_1.default)((req, res) => __awaiter(
          * TODO:if user found then thow an error: User already exists
          */
         // throw new Error("User Already Exists");
-        res.json(400).json({ message: "User Already Exists" });
+        res.status(400).json({ message: "User Already Exists" });
     }
 }));
 exports.createUser = createUser;
