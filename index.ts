@@ -45,11 +45,12 @@ app.use(
       callback: (err: Error | null, allowed: boolean) => void
     ) => {
       if (origin) {
-        const allowedOrigins = [
+        let allowedOrigins = [
           "https://techtreasure.vercel.app",
           "https://raiappliances-admin-panel.vercel.app",
           "http://localhost:5173",
           "http://localhost:5174",
+          "http://localhost:5000",
         ];
         callback(null, allowedOrigins.indexOf(origin) !== -1);
       } else {
