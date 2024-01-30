@@ -42,9 +42,8 @@ const updateAddress = (0, express_async_handler_1.default)((req, res) => __await
     if (!req.user)
         throw new Error("user not found");
     // const { _id } = req.user;
-    const { id: param_id } = req.params;
-    const { id: query_id } = req.query;
-    let id = param_id || query_id;
+    const { id } = req.params;
+    // const { id: query_id } = req.query;
     const { address } = req.body;
     const { phone_no, zipcode } = address;
     if (!zipcode || !phone_no) {
@@ -67,9 +66,8 @@ const deleteAddress = (0, express_async_handler_1.default)((req, res) => __await
     if (!req.user)
         throw new Error("user not found");
     // const { _id } = req.user;
-    const { id: param_id } = req.params;
-    const { id: query_id } = req.query;
-    let id = param_id || query_id;
+    const { id } = req.params;
+    // const { id: query_id } = req.query;
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
         const updated = yield addressModel_1.Address.findByIdAndDelete(id);
@@ -85,9 +83,8 @@ const getAddressByUser = (0, express_async_handler_1.default)((req, res) => __aw
     if (!req.user)
         throw new Error("user not found");
     const { _id } = req.user;
-    const { id: param_id } = req.params;
-    const { id: query_id } = req.query;
-    let id = _id || param_id || query_id;
+    const { id } = req.params;
+    // const { id: query_id } = req.query;
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
         const updated = yield addressModel_1.Address.find({ user: id });
@@ -103,9 +100,8 @@ const getAddressById = (0, express_async_handler_1.default)((req, res) => __awai
     if (!req.user)
         throw new Error("user not found");
     // const { _id } = req.user;
-    const { id: param_id } = req.params;
-    const { id: query_id } = req.query;
-    let id = param_id || query_id;
+    const { id } = req.params;
+    // const { id: query_id } = req.query;
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
         const updated = yield addressModel_1.Address.find({ _id: id });

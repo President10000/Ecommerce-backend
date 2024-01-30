@@ -49,7 +49,14 @@ const createUser = (0, express_async_handler_1.default)((req, res) => __awaiter(
          * TODO:if user not found user create a new user
          */
         const newUser = yield userModel_1.default.create(req.body);
-        res.json(newUser);
+        res.json({
+            _id: newUser._id,
+            firstname: newUser.firstname,
+            lastname: newUser.lastname,
+            email: newUser.email,
+            mobile: newUser.mobile,
+            token: (0, jwtToken_1.generateToken)(newUser._id.toString()),
+        });
     }
     else {
         /**
@@ -80,12 +87,12 @@ const loginUserCtrl = (0, express_async_handler_1.default)((req, res) => __await
             maxAge: 60 * 60 * 24 * 30,
         });
         res.json({
-            _id: findUser === null || findUser === void 0 ? void 0 : findUser._id,
-            firstname: findUser === null || findUser === void 0 ? void 0 : findUser.firstname,
-            lastname: findUser === null || findUser === void 0 ? void 0 : findUser.lastname,
-            email: findUser === null || findUser === void 0 ? void 0 : findUser.email,
-            mobile: findUser === null || findUser === void 0 ? void 0 : findUser.mobile,
-            token: (0, jwtToken_1.generateToken)(findUser === null || findUser === void 0 ? void 0 : findUser._id.toString()),
+            _id: findUser._id,
+            firstname: findUser.firstname,
+            lastname: findUser.lastname,
+            email: findUser.email,
+            mobile: findUser.mobile,
+            token: (0, jwtToken_1.generateToken)(findUser._id.toString()),
         });
     }
     catch (error) {
@@ -180,9 +187,9 @@ const updatedUser = (0, express_async_handler_1.default)((req, res) => __awaiter
         throw new Error("user not found");
     const { _id } = req.user;
     const { id: body_id } = req.body;
-    const { id: param_id } = req.params;
+    // const { id: param_id } = req.params;
     const { id: query_id } = req.query;
-    let id = _id || param_id || query_id || body_id;
+    let id = _id || query_id || body_id;
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
         const updatedUser = yield userModel_1.default.findByIdAndUpdate(id, {
@@ -201,67 +208,6 @@ const updatedUser = (0, express_async_handler_1.default)((req, res) => __awaiter
     }
 }));
 exports.updatedUser = updatedUser;
-// save user Address
-// const saveAddress = asyncHandler(async (req, res) => {
-//   const { _id } = req.user;
-//   const { phone_no, zipcode } = req.body;
-//   if (!zipcode || !phone_no) {
-//     res.status(400).json({ message: `zipcode and phone no is required ` });
-//   }
-//   try {
-//     validateMongoDbId(_id);
-//     let newAddress = await new Address({ ...req.body, user: _id }).save();
-//     res.json(newAddress);
-//   } catch (error) {
-//     res.status(400).json({ message: error.message });
-//   }
-// });
-// const updateAddress = asyncHandler(async (req, res) => {
-//   const { _id } = req.user;
-//   const { id } = req.params;
-//   const { address } = req.body;
-//   const { phone_no, zipcode } = address;
-//   if (!zipcode || !phone_no) {
-//     res.status(400).json({ message: `zipcode and phone no is required ` });
-//   }
-//   try {
-//     validateMongoDbId(_id);
-//     const updated = await Address.findOneAndUpdate(
-//       { _id: id },
-//       address,
-//       { new: true }
-//     );
-//     res.json(updated);
-//   } catch (error) {
-//     res.status(400).json({ message: error.message });
-//   }
-// });
-// const deleteAddress = asyncHandler(async (req, res) => {
-//   const { _id } = req.user;
-//   const { id } = req.params;
-//   try {
-//     validateMongoDbId(_id);
-//     const updated = await Address.findByIdAndDelete(id);
-//     res.json(updated);
-//   } catch (error) {
-//     res.status(400).json({ message: error.message });
-//   }
-// });
-// const getAddress = asyncHandler(async (req, res) => {
-//   const { _id } = req.user;
-//   const { user } = req.query;
-//   if (!user) {
-//     res.status(404).json({ message: "body not found" });
-//   }
-// console.log("got-------------")
-//   try {
-//     validateMongoDbId(_id);
-//     const updated = await Address.find({ user });
-//     res.json(updated);
-//   } catch (error) {
-//     res.status(400).json({ message: error.message });
-//   }
-// });
 // Get all users
 const getallUser = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -276,10 +222,9 @@ const getallUser = (0, express_async_handler_1.default)((req, res) => __awaiter(
 exports.getallUser = getallUser;
 // Get a single user
 const getaUser = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id: body_id } = req.body;
-    const { id: param_id } = req.params;
-    const { id: query_id } = req.query;
-    let id = param_id || query_id || body_id;
+    // const { id: body_id } = req.body;
+    const { id } = req.params;
+    // const { id: query_id } = req.query;
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
         const user = yield userModel_1.default.findById(id);
@@ -293,10 +238,9 @@ const getaUser = (0, express_async_handler_1.default)((req, res) => __awaiter(vo
 exports.getaUser = getaUser;
 // Get a single user
 const deleteaUser = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id: body_id } = req.body;
-    const { id: param_id } = req.params;
-    const { id: query_id } = req.query;
-    let id = param_id || query_id || body_id;
+    // const { id: body_id } = req.body;
+    const { id } = req.params;
+    // const { id: query_id } = req.query;
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
         const deleteaUser = yield userModel_1.default.findByIdAndDelete(id);
@@ -311,10 +255,8 @@ const deleteaUser = (0, express_async_handler_1.default)((req, res) => __awaiter
 }));
 exports.deleteaUser = deleteaUser;
 const blockUser = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id: body_id } = req.body;
-    const { id: param_id } = req.params;
-    const { id: query_id } = req.query;
-    let id = param_id || query_id || body_id;
+    // const { id: body_id } = req.body;
+    const { id } = req.params;
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
         const blockusr = yield userModel_1.default.findByIdAndUpdate(id, {
@@ -331,10 +273,8 @@ const blockUser = (0, express_async_handler_1.default)((req, res) => __awaiter(v
 }));
 exports.blockUser = blockUser;
 const unblockUser = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id: body_id } = req.body;
-    const { id: param_id } = req.params;
-    const { id: query_id } = req.query;
-    let id = param_id || query_id || body_id;
+    // const { id: body_id } = req.body;
+    const { id } = req.params;
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
         yield userModel_1.default.findByIdAndUpdate(id, {

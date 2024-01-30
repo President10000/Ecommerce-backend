@@ -5,9 +5,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 // const {addressType} = require("./addressModel");
-const addressModel_1 = require("./addressModel");
+// import { addressType } from "./addressModel";
 // Declare the Schema of the Mongo model
-var orderSchema = new mongoose_1.default.Schema({
+const order = {
     products: [
         {
             product: {
@@ -21,10 +21,7 @@ var orderSchema = new mongoose_1.default.Schema({
     paymentMode: {
         required: true,
         type: String,
-        enum: [
-            "COD",
-            "RAZORPAY"
-        ],
+        enum: ["COD", "RAZORPAY"],
     },
     orderStatus: {
         type: String,
@@ -37,12 +34,16 @@ var orderSchema = new mongoose_1.default.Schema({
             "Delivered",
         ],
     },
-    address: addressModel_1.addressType,
+    address: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: "Address",
+    },
     user: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: "User",
     },
-}, {
+};
+var orderSchema = new mongoose_1.default.Schema(order, {
     timestamps: true,
 });
 //Export the model

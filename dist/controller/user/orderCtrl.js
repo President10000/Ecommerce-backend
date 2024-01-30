@@ -51,7 +51,7 @@ const payOnDeliveryOrder = (0, express_async_handler_1.default)((req, res) => __
                 res.status(400).json({ message: "product already sold out" });
                 throw new Error("product already sold out");
             }
-            finalAmout = finalAmout + stock.price * itemToOrder.quantity;
+            finalAmout = finalAmout + stock.price * 100 * itemToOrder.quantity;
         }
         // if (couponApplied && userCart.totalAfterDiscount) {
         //   finalAmout = userCart.totalAfterDiscount;
@@ -66,13 +66,15 @@ const payOnDeliveryOrder = (0, express_async_handler_1.default)((req, res) => __
             paymentMode: "COD",
             paymentIntent: {
                 id: (0, uniqid_1.default)(),
-                method: "COD",
                 amount: finalAmout,
                 amount_paid: 0,
                 amount_due: finalAmout,
                 status: "created",
+                method: "COD",
                 created_at: Date.now(),
                 currency: "INR",
+                notes,
+                receipt,
             },
             user: _id,
             orderStatus: "Processing",
@@ -120,7 +122,7 @@ const payNowOrder = (0, express_async_handler_1.default)((req, res) => __awaiter
                 res.status(400).json({ message: "product already sold out" });
                 throw new Error("product already sold out");
             }
-            finalAmout = finalAmout + stock.price * itemToOrder.quantity;
+            finalAmout = finalAmout + stock.price * 100 * itemToOrder.quantity;
         }
         const paymentIntent = yield rajorpayInstance_1.instance.orders.create({
             amount: finalAmout,
@@ -130,7 +132,7 @@ const payNowOrder = (0, express_async_handler_1.default)((req, res) => __awaiter
         });
         const newOrder = yield new orderModel_1.default({
             products: userCart,
-            paymentIntent: paymentIntent,
+            paymentIntent: Object.assign(Object.assign({}, paymentIntent), { id: (0, uniqid_1.default)(), amount_paid: 0, amount_due: finalAmout, status: "created", method: "COD", created_at: Date.now() }),
             paymentMode: "RAZORPAY",
             address,
             user: _id,
@@ -160,8 +162,8 @@ const getOrdersByUser = (0, express_async_handler_1.default)((req, res) => __awa
         throw new Error("user not found");
     let { _id } = req.user;
     const { id: param_id } = req.params;
-    const { populate, id: query_id } = req.query;
-    _id = _id || param_id || query_id;
+    const { populate } = req.query;
+    _id = _id || param_id; //|| (query_id as string);
     try {
         (0, validateMongodbId_1.validateMongoDbId)(_id);
         const userorders = yield orderModel_1.default.find({ user: _id })
@@ -189,8 +191,7 @@ const getAllOrders = (0, express_async_handler_1.default)((req, res) => __awaite
 exports.getAllOrders = getAllOrders;
 const getOrderById = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let { id } = req.params;
-    const { populate, id: query_id } = req.query;
-    id = id || query_id;
+    const { populate } = req.query;
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
         const userorders = yield orderModel_1.default.find({ _id: id }).populate(populate); //.exec();
@@ -204,8 +205,7 @@ const getOrderById = (0, express_async_handler_1.default)((req, res) => __awaite
 exports.getOrderById = getOrderById;
 const updateOrderStatus = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let { id } = req.params;
-    const { populate, id: query_id } = req.query;
-    id = id || query_id;
+    const { populate } = req.query;
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
         const updateOrderStatus = yield orderModel_1.default.findByIdAndUpdate(id, req.body, {

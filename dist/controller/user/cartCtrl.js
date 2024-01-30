@@ -22,51 +22,22 @@ const couponModel_1 = __importDefault(require("../../models/couponModel"));
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 // const validateMongoDbId = require("../../utils/validateMongodbId");
 const validateMongodbId_1 = require("../../utils/validateMongodbId");
-// async function putItemToCart(existingCart, itemsToInsert) {
-//   let cartTotal = 0;
-//   for (let i = 0; i < itemsToInsert.length; i++) {
-//     if (
-//       existingCart.some(
-//         (item) => item.product.toString() === itemsToInsert[i]._id
-//       )
-//     ) {
-//       for (let item of existingCart) {
-//         if (item.product.toString() === itemsToInsert[i]._id) {
-//           item.count += itemsToInsert[i].count ? itemsToInsert[i].count : 1;
-//         }
-//       }
-//     } else {
-//       let object = {};
-//       object.product = itemsToInsert[i]._id;
-//       let getPrice = await Product.findById(itemsToInsert[i]._id)
-//         .select("price")
-//         .exec();
-//       object.price = parseInt(getPrice.price);
-//       object.count = itemsToInsert[i].count ? itemsToInsert[i].count : 1;
-//       existingCart.push(object);
-//     }
-//   }
-//   for (let i = 0; i < existingCart.length; i++) {
-//     cartTotal = cartTotal + existingCart[i].price * existingCart[i].count;
-//   }
-//   return { products: existingCart, cartTotal };
-// }
 const addItemToCart = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const { product, quantity } = req.body;
+    const { product_id, quantity } = req.body;
     const _id = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
     try {
-        if (!product || !quantity || !_id)
+        if (!product_id || !quantity || !_id)
             throw new Error("missing details");
         (0, validateMongodbId_1.validateMongoDbId)(_id);
-        const isExist = yield cartModel_1.default.findOne({ product });
+        const isExist = yield cartModel_1.default.findOne({ product: product_id });
         if (isExist) {
-            const updateQty = yield cartModel_1.default.findOneAndUpdate({ product, user: _id }, { quantity: isExist.quantity + quantity });
+            const updateQty = yield cartModel_1.default.findOneAndUpdate({ product: product_id, user: _id }, { quantity: isExist.quantity + quantity });
             res.json(updateQty);
         }
         else {
             let newCart = yield new cartModel_1.default({
-                product,
+                product: product_id,
                 quantity,
                 user: _id,
             }).save();
@@ -121,7 +92,7 @@ const removeItemFromCart = (0, express_async_handler_1.default)((req, res) => __
     }
 }));
 exports.removeItemFromCart = removeItemFromCart;
-// todo 
+// todo
 const applyCoupon = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.user)
         throw new Error("user not found");

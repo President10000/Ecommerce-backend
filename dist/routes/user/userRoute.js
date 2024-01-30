@@ -31,7 +31,7 @@ router.use("/wishlist", wishlistRoute_1.default);
 router.use("/address", addressRoutes_1.default);
 router.put("/edit", authMiddleware_1.authMiddleware, userCtrl_1.updatedUser);
 router.get("/find/:id", authMiddleware_1.authMiddleware, authMiddleware_1.isAdmin, userCtrl_1.getaUser);
-router.get("/find-all", authMiddleware_1.authMiddleware, authMiddleware_1.isAdmin, userCtrl_1.getallUser);
+router.get("/find", authMiddleware_1.authMiddleware, authMiddleware_1.isAdmin, userCtrl_1.getallUser);
 router.put("/block/:id", authMiddleware_1.authMiddleware, authMiddleware_1.isAdmin, userCtrl_1.blockUser);
 router.put("/unblock/:id", authMiddleware_1.authMiddleware, authMiddleware_1.isAdmin, userCtrl_1.unblockUser);
 router.delete("/delete/:id", authMiddleware_1.authMiddleware, authMiddleware_1.isAdmin, userCtrl_1.deleteaUser);

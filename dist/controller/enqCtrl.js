@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getallEnquiry = exports.getEnquiry = exports.deleteEnquiry = exports.updateEnquiry = exports.createEnquiry = void 0;
+exports.getallEnquiry = exports.getEnquiryByUser = exports.getEnquiryById = exports.deleteEnquiry = exports.updateEnquiry = exports.createEnquiry = void 0;
 // const Enquiry = require("../models/enqModel");
 const enqModel_1 = __importDefault(require("../models/enqModel"));
 // const asyncHandler = require("express-async-handler");
@@ -31,10 +31,8 @@ const createEnquiry = (0, express_async_handler_1.default)((req, res) => __await
 }));
 exports.createEnquiry = createEnquiry;
 const updateEnquiry = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id: body_id } = req.body;
-    const { id: param_id } = req.params;
-    const { id: query_id } = req.query;
-    let id = param_id || query_id || body_id;
+    // const { id: body_id } = req.body;
+    const { id } = req.params;
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
         const updatedEnquiry = yield enqModel_1.default.findByIdAndUpdate(id, req.body, {
@@ -49,10 +47,7 @@ const updateEnquiry = (0, express_async_handler_1.default)((req, res) => __await
 }));
 exports.updateEnquiry = updateEnquiry;
 const deleteEnquiry = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id: body_id } = req.body;
-    const { id: param_id } = req.params;
-    const { id: query_id } = req.query;
-    let id = param_id || query_id || body_id;
+    const { id } = req.params;
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
         const deletedEnquiry = yield enqModel_1.default.findByIdAndDelete(id);
@@ -64,11 +59,8 @@ const deleteEnquiry = (0, express_async_handler_1.default)((req, res) => __await
     }
 }));
 exports.deleteEnquiry = deleteEnquiry;
-const getEnquiry = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id: body_id } = req.body;
-    const { id: param_id } = req.params;
-    const { id: query_id } = req.query;
-    let id = param_id || query_id || body_id;
+const getEnquiryById = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
         const getaEnquiry = yield enqModel_1.default.findById(id);
@@ -79,7 +71,23 @@ const getEnquiry = (0, express_async_handler_1.default)((req, res) => __awaiter(
         res.status(500).send("Internal server error");
     }
 }));
-exports.getEnquiry = getEnquiry;
+exports.getEnquiryById = getEnquiryById;
+const getEnquiryByUser = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.user)
+        throw new Error("user not found");
+    let { id } = req.params;
+    id = id || req.user._id;
+    try {
+        (0, validateMongodbId_1.validateMongoDbId)(id);
+        const getaEnquiry = yield enqModel_1.default.findById(id);
+        res.json(getaEnquiry);
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).send("Internal server error");
+    }
+}));
+exports.getEnquiryByUser = getEnquiryByUser;
 const getallEnquiry = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const getallEnquiry = yield enqModel_1.default.find();

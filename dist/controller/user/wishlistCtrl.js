@@ -24,40 +24,39 @@ const createOrDeleteItem = (0, express_async_handler_1.default)((req, res) => __
     if (!req.user)
         throw new Error("user not found");
     const { _id } = req.user;
-    // const { id: body_id } = req.body;
     const { id } = req.params;
-    // const { id: query_id } = req.query;
-    // let id = param_id || query_id || body_id;
-    console.log({ id });
-    res.json({ status: "removed", product: "added" });
-    // try {
-    //   validateMongoDbId(id);
-    //   // const user = await User.findById(_id);
-    //   const alreadyadded = await wishlistModel.findOne({ user: _id, _id: id });
-    //   if (alreadyadded) {
-    //     let product = await wishlistModel.deleteOne({ _id: alreadyadded._id });
-    //     res.json({ status: "removed", product });
-    //   } else {
-    //     const added = await new wishlistModel({
-    //       product: id,
-    //       user: _id,
-    //     }).save();
-    //     res.json({ status: "removed", product: added });
-    //   }
-    // } catch (error) {
-    //   console.error(error);
-    //   res.status(500).send("Internal server error");
-    // }
+    try {
+        (0, validateMongodbId_1.validateMongoDbId)(id);
+        // const user = await User.findById(_id);
+        const alreadyadded = yield wishlistModel_1.default.findOne({
+            user: _id,
+            $or: [{ _id: id }, { product: id }],
+        });
+        if (alreadyadded) {
+            let product = yield wishlistModel_1.default.deleteMany({ product: id });
+            res.json({ status: "removed", wish: product });
+        }
+        else {
+            const added = yield new wishlistModel_1.default({
+                product: id,
+                user: _id,
+            }).save();
+            res.json({ status: "added", wish: added });
+        }
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).send("Internal server error");
+    }
 }));
 exports.createOrDeleteItem = createOrDeleteItem;
 const getWishlistByUser = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.user)
         throw new Error("user not found");
     const { _id } = req.user;
-    const { id: body_id } = req.body;
     const { id: param_id } = req.params;
-    const { populate, id: query_id } = req.query;
-    let id = _id || param_id || query_id || body_id;
+    const { populate } = req.query;
+    let id = _id || param_id;
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
         const wishlist = yield wishlistModel_1.default
@@ -75,10 +74,8 @@ const getWishById = (0, express_async_handler_1.default)((req, res) => __awaiter
     if (!req.user)
         throw new Error("user not found");
     // const { _id } = req.user;
-    const { id: body_id } = req.body;
-    const { id: param_id } = req.params;
-    const { populate, id: query_id } = req.query;
-    let id = param_id || query_id || body_id;
+    const { id } = req.params;
+    const { populate } = req.query;
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
         const wishlist = yield userModel_1.default.find({ _id: id }).populate(populate);
