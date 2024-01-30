@@ -4,6 +4,7 @@ import Enquiry from "../models/enqModel";
 import asyncHandler from "express-async-handler";
 // const validateMongoDbId = require("../utils/validateMongodbId");
 import { validateMongoDbId } from "../utils/validateMongodbId";
+import { Req_with_user } from "../middlewares/authMiddleware";
 
 const createEnquiry = asyncHandler(async (req, res) => {
   try {
@@ -16,10 +17,8 @@ const createEnquiry = asyncHandler(async (req, res) => {
 });
 
 const updateEnquiry = asyncHandler(async (req, res) => {
-  const { id: body_id } = req.body;
-  const { id: param_id } = req.params;
-  const { id: query_id } = req.query;
-  let id = param_id || query_id || body_id;
+  // const { id: body_id } = req.body;
+  const { id } = req.params;
   try {
     validateMongoDbId(id);
     const updatedEnquiry = await Enquiry.findByIdAndUpdate(id, req.body, {
@@ -32,10 +31,7 @@ const updateEnquiry = asyncHandler(async (req, res) => {
   }
 });
 const deleteEnquiry = asyncHandler(async (req, res) => {
-  const { id: body_id } = req.body;
-  const { id: param_id } = req.params;
-  const { id: query_id } = req.query;
-  let id = param_id || query_id || body_id;
+  const { id } = req.params;
   try {
     validateMongoDbId(id);
     const deletedEnquiry = await Enquiry.findByIdAndDelete(id);
@@ -46,11 +42,21 @@ const deleteEnquiry = asyncHandler(async (req, res) => {
   }
 });
 
-const getEnquiry = asyncHandler(async (req, res) => {
-  const { id: body_id } = req.body;
-  const { id: param_id } = req.params;
-  const { id: query_id } = req.query;
-  let id = param_id || query_id || body_id;
+const getEnquiryById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  try {
+    validateMongoDbId(id);
+    const getaEnquiry = await Enquiry.findById(id);
+    res.json(getaEnquiry);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal server error");
+  }
+});
+const getEnquiryByUser = asyncHandler(async (req: Req_with_user, res) => {
+  if (!req.user) throw new Error("user not found");
+  let { id } = req.params;
+  id = id || req.user._id;
   try {
     validateMongoDbId(id);
     const getaEnquiry = await Enquiry.findById(id);
@@ -72,7 +78,7 @@ const getallEnquiry = asyncHandler(async (req, res) => {
 export {
   createEnquiry,
   updateEnquiry,
-  deleteEnquiry,
-  getEnquiry,
+  deleteEnquiry,getEnquiryById,
+  getEnquiryByUser,
   getallEnquiry,
 };

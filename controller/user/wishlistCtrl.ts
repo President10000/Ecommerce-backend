@@ -17,16 +17,19 @@ const createOrDeleteItem = asyncHandler(
     try {
       validateMongoDbId(id);
       // const user = await User.findById(_id);
-      const alreadyadded = await wishlistModel.findOne({ user: _id, product: id });
+      const alreadyadded = await wishlistModel.findOne({
+        user: _id,
+        $or: [{ _id: id }, { product: id }],
+      });
       if (alreadyadded) {
         let product = await wishlistModel.deleteMany({ product: id });
-        res.json({ status: "removed", product });
+        res.json({ status: "removed", wish: product });
       } else {
         const added = await new wishlistModel({
           product: id,
           user: _id,
         }).save();
-        res.json({ status: "added", product: added });
+        res.json({ status: "added", wish: added });
       }
     } catch (error) {
       console.error(error);
@@ -41,7 +44,7 @@ const getWishlistByUser = asyncHandler(
     const { _id } = req.user;
     const { id: param_id } = req.params;
     const { populate } = req.query;
-    let id = _id || param_id 
+    let id = _id || param_id;
     try {
       validateMongoDbId(id);
       const wishlist = await wishlistModel
@@ -58,7 +61,7 @@ const getWishById = asyncHandler(async (req: Req_with_user, res: Response) => {
   if (!req.user) throw new Error("user not found");
   // const { _id } = req.user;
   const { id } = req.params;
-  const { populate,  } = req.query;
+  const { populate } = req.query;
   try {
     validateMongoDbId(id);
     const wishlist = await User.find({ _id: id }).populate(

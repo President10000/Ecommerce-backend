@@ -13,53 +13,26 @@ import asyncHandler from "express-async-handler";
 // const validateMongoDbId = require("../../utils/validateMongodbId");
 import { validateMongoDbId } from "../../utils/validateMongodbId";
 
-// async function putItemToCart(existingCart, itemsToInsert) {
-//   let cartTotal = 0;
-//   for (let i = 0; i < itemsToInsert.length; i++) {
-//     if (
-//       existingCart.some(
-//         (item) => item.product.toString() === itemsToInsert[i]._id
-//       )
-//     ) {
-//       for (let item of existingCart) {
-//         if (item.product.toString() === itemsToInsert[i]._id) {
-//           item.count += itemsToInsert[i].count ? itemsToInsert[i].count : 1;
-//         }
-//       }
-//     } else {
-//       let object = {};
-//       object.product = itemsToInsert[i]._id;
-//       let getPrice = await Product.findById(itemsToInsert[i]._id)
-//         .select("price")
-//         .exec();
-//       object.price = parseInt(getPrice.price);
-//       object.count = itemsToInsert[i].count ? itemsToInsert[i].count : 1;
-//       existingCart.push(object);
-//     }
-//   }
-//   for (let i = 0; i < existingCart.length; i++) {
-//     cartTotal = cartTotal + existingCart[i].price * existingCart[i].count;
-//   }
-//   return { products: existingCart, cartTotal };
-// }
 
 const addItemToCart = asyncHandler(
   async (req: Req_with_user, res: Response) => {
-    const { product, quantity }: { product?: string; quantity?: number } =
+    const { product_id, quantity }: { product_id?: string; quantity?: number } =
       req.body;
     const _id = req.user?._id;
 
     try {
-      if (!product || !quantity || !_id) throw new Error("missing details");
+      if (!product_id || !quantity || !_id) throw new Error("missing details");
       validateMongoDbId(_id);
-      const isExist= await Cart.findOne({product})
-      if(isExist){
-        const updateQty= await Cart.findOneAndUpdate({product,user:_id},{quantity:isExist.quantity+quantity})
+      const isExist = await Cart.findOne({ product: product_id });
+      if (isExist) {
+        const updateQty = await Cart.findOneAndUpdate(
+          { product: product_id, user: _id },
+          { quantity: isExist.quantity + quantity }
+        );
         res.json(updateQty);
-      }else{
-        
+      } else {
         let newCart = await new Cart({
-          product,
+          product: product_id,
           quantity,
           user: _id,
         }).save();
@@ -73,8 +46,8 @@ const addItemToCart = asyncHandler(
 );
 
 const getUserCart = asyncHandler(async (req: Req_with_user, res: Response) => {
-  if(!req.user)throw new Error("user not found")
-  const {_id} = req.user;
+  if (!req.user) throw new Error("user not found");
+  const { _id } = req.user;
   const { populate } = req.query;
   try {
     validateMongoDbId(_id);
@@ -90,9 +63,9 @@ const getUserCart = asyncHandler(async (req: Req_with_user, res: Response) => {
 
 const removeItemFromCart = asyncHandler(
   async (req: Req_with_user, res: Response) => {
-    if(!req.user)throw new Error("user not found")
+    if (!req.user) throw new Error("user not found");
     const { toRemove }: { toRemove: string | string[] } = req.body;
-    const {_id} = req.user;
+    const { _id } = req.user;
     const { populate } = req.query;
     try {
       validateMongoDbId(_id);
@@ -109,7 +82,6 @@ const removeItemFromCart = asyncHandler(
       } else {
         throw new Error("Invalid input type");
       }
-
     } catch (error) {
       console.error(error);
       res.status(500).send("Internal server error");
@@ -117,11 +89,10 @@ const removeItemFromCart = asyncHandler(
   }
 );
 
-
-// todo 
-const applyCoupon = asyncHandler(async (req:Req_with_user, res:Response) => {
-  if(!req.user)throw new Error("user not found")
-  const {_id} = req.user;
+// todo
+const applyCoupon = asyncHandler(async (req: Req_with_user, res: Response) => {
+  if (!req.user) throw new Error("user not found");
+  const { _id } = req.user;
   const { coupon } = req.body;
   validateMongoDbId(_id);
   const validCoupon = await Coupon.findOne({ name: coupon });
@@ -144,9 +115,4 @@ const applyCoupon = asyncHandler(async (req:Req_with_user, res:Response) => {
   res.json({});
 });
 
-export{
-  addItemToCart,
-  removeItemFromCart,
-  getUserCart,
-  applyCoupon,
-};
+export { addItemToCart, removeItemFromCart, getUserCart, applyCoupon };

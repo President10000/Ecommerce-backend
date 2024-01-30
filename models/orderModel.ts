@@ -1,50 +1,50 @@
-import mongoose  from "mongoose"
+import mongoose from "mongoose";
 // const {addressType} = require("./addressModel");
-import {addressType} from "./addressModel"
+// import { addressType } from "./addressModel";
 
 // Declare the Schema of the Mongo model
-var orderSchema = new mongoose.Schema(
-  {
-    products: [
-      {
-        product: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Product",
-        },
-        quantity: Number,
-      },
-    ],
-    paymentIntent: {},
 
-    paymentMode: {
-      required:true,
-      type: String,
-      enum: [
-        "COD",
-        "RAZORPAY"
-      ],
+const order = {
+  products: [
+    {
+      product: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+      },
+      quantity: Number,
     },
-    orderStatus: {
-      type: String,
-      default: "Not Processed",
-      enum: [
-        "Not Processed",
-        "Processing",
-        "Dispatched",
-        "Cancelled",
-        "Delivered",
-      ],
-    },
-    address:addressType,
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
+  ],
+  paymentIntent: {},
+
+  paymentMode: {
+    required: true,
+    type: String,
+    enum: ["COD", "RAZORPAY"],
   },
-  {
-    timestamps: true,
-  }
-);
+  orderStatus: {
+    type: String,
+    default: "Not Processed",
+    enum: [
+      "Not Processed",
+      "Processing",
+      "Dispatched",
+      "Cancelled",
+      "Delivered",
+    ],
+  },
+  address: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Address",
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+};
+
+var orderSchema = new mongoose.Schema(order, {
+  timestamps: true,
+});
 
 //Export the model
 export default mongoose.model("Order", orderSchema);

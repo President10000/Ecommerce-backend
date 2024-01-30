@@ -50,7 +50,7 @@ const payOnDeliveryOrder = asyncHandler(async (req: Req_with_user, res) => {
         throw new Error("product already sold out");
       }
 
-      finalAmout = finalAmout + stock.price * itemToOrder.quantity;
+      finalAmout = finalAmout + stock.price *100* itemToOrder.quantity;
     }
 
     // if (couponApplied && userCart.totalAfterDiscount) {
@@ -69,13 +69,15 @@ const payOnDeliveryOrder = asyncHandler(async (req: Req_with_user, res) => {
       paymentMode: "COD",
       paymentIntent: {
         id: uniqid(),
-        method: "COD",
         amount: finalAmout,
         amount_paid: 0,
         amount_due: finalAmout,
         status: "created",
+        method: "COD",
         created_at: Date.now(),
         currency: "INR",
+        notes,
+        receipt,
       },
       user: _id,
       orderStatus: "Processing",
@@ -131,7 +133,7 @@ const payNowOrder = asyncHandler(async (req: Req_with_user, res) => {
         throw new Error("product already sold out");
       }
 
-      finalAmout = finalAmout + stock.price * itemToOrder.quantity;
+      finalAmout = finalAmout + stock.price*100* itemToOrder.quantity;
     }
 
     const paymentIntent = await instance.orders.create({
@@ -143,7 +145,15 @@ const payNowOrder = asyncHandler(async (req: Req_with_user, res) => {
 
     const newOrder = await new Order({
       products: userCart,
-      paymentIntent: paymentIntent,
+      paymentIntent: {
+        ...paymentIntent,
+        id: uniqid(),
+        amount_paid: 0,
+        amount_due: finalAmout,
+        status: "created",
+        method: "COD",
+        created_at: Date.now(),
+      },
       paymentMode: "RAZORPAY",
       address,
       user: _id,
@@ -173,8 +183,8 @@ const getOrdersByUser = asyncHandler(
     if (!req.user) throw new Error("user not found");
     let { _id } = req.user;
     const { id: param_id } = req.params;
-    const { populate} = req.query;
-    _id = _id || param_id //|| (query_id as string);
+    const { populate } = req.query;
+    _id = _id || param_id; //|| (query_id as string);
     try {
       validateMongoDbId(_id);
       const userorders = await Order.find({ user: _id })

@@ -41,7 +41,14 @@ const createUser = asyncHandler(async (req: Request, res: Response) => {
      * TODO:if user not found user create a new user
      */
     const newUser = await User.create(req.body);
-    res.json(newUser);
+    res.json({
+      _id: newUser._id,
+      firstname: newUser.firstname,
+      lastname: newUser.lastname,
+      email: newUser.email,
+      mobile: newUser.mobile,
+      token: generateToken(newUser._id.toString()),
+    });
   } else {
     /**
      * TODO:if user found then thow an error: User already exists
@@ -76,13 +83,14 @@ const loginUserCtrl = asyncHandler(async (req: Request, res: Response) => {
       httpOnly: true,
       maxAge: 60 * 60 * 24 * 30,
     });
+
     res.json({
-      _id: findUser?._id,
-      firstname: findUser?.firstname,
-      lastname: findUser?.lastname,
-      email: findUser?.email,
-      mobile: findUser?.mobile,
-      token: generateToken(findUser?._id.toString()),
+      _id: findUser._id,
+      firstname: findUser.firstname,
+      lastname: findUser.lastname,
+      email: findUser.email,
+      mobile: findUser.mobile,
+      token: generateToken(findUser._id.toString()),
     });
   } catch (error) {
     console.error(error);
