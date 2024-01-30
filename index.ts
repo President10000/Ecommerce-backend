@@ -37,29 +37,19 @@ dotenv.config();
 const PORT = process.env.PORT || 4000;
 dbConnect();
 app.use(morgan("dev"));
+const allowedOrigins = [
+  "https://techtreasure.vercel.app",
+  "https://raiappliances-admin-panel.vercel.app",
+  "http://localhost:5173",
+  "http://localhost:5174",
+];
 
-// app.use(
-//   cors({
-//     origin: (
-//       origin: string | undefined,
-//       callback: (err: Error | null, allowed: boolean) => void
-//     ) => {
-//       if (origin) {
-//         let allowedOrigins = [
-//           "https://techtreasure.vercel.app",
-//           "https://raiappliances-admin-panel.vercel.app",
-//           "http://localhost:5173",
-//           "http://localhost:5174",
-//         ];
-//         callback(null, allowedOrigins.indexOf(origin) !== -1);
-//       } else {
-//         callback(new Error("Invalid origin"), false);
-//       }
-//     },
-//     credentials: true,
-//   })
-// );
-app.use(cors({ credentials: true, origin: true }) as any);
+app.use(
+  cors({
+    origin: allowedOrigins,
+  })
+);
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
