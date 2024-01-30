@@ -38,28 +38,28 @@ const PORT = process.env.PORT || 4000;
 dbConnect();
 app.use(morgan("dev"));
 
-app.use(
-  cors({
-    origin: (
-      origin: string | undefined,
-      callback: (err: Error | null, allowed: boolean) => void
-    ) => {
-      if (origin) {
-        let allowedOrigins = [
-          "https://techtreasure.vercel.app",
-          "https://raiappliances-admin-panel.vercel.app",
-          "http://localhost:5173",
-          "http://localhost:5174",
-          "http://localhost:5000",
-        ];
-        callback(null, allowedOrigins.indexOf(origin) !== -1);
-      } else {
-        callback(new Error("Invalid origin"), false);
-      }
-    },
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin: (
+//       origin: string | undefined,
+//       callback: (err: Error | null, allowed: boolean) => void
+//     ) => {
+//       if (origin) {
+//         let allowedOrigins = [
+//           "https://techtreasure.vercel.app",
+//           "https://raiappliances-admin-panel.vercel.app",
+//           "http://localhost:5173",
+//           "http://localhost:5174",
+//         ];
+//         callback(null, allowedOrigins.indexOf(origin) !== -1);
+//       } else {
+//         callback(new Error("Invalid origin"), false);
+//       }
+//     },
+//     credentials: true,
+//   })
+// );
+app.use(cors({ credentials: true, origin: true }) as any);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
