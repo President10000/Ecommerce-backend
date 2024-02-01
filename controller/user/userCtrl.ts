@@ -216,11 +216,7 @@ const updatedUser = asyncHandler(async (req: Req_with_user, res: Response) => {
 
 const getallUser = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const getUsers = await User.find().populate(
-      "firstname",
-      "lastname",
-      "email"
-    );
+    const getUsers = await User.find().populate("wishlist");
     res.json(getUsers);
   } catch (error) {
     console.error(error);
