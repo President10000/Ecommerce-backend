@@ -211,7 +211,7 @@ exports.updatedUser = updatedUser;
 // Get all users
 const getallUser = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const getUsers = yield userModel_1.default.find().populate("wishlist");
+        const getUsers = yield userModel_1.default.find();
         res.json(getUsers);
     }
     catch (error) {

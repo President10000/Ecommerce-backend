@@ -83,8 +83,8 @@ const getAddressByUser = (0, express_async_handler_1.default)((req, res) => __aw
     if (!req.user)
         throw new Error("user not found");
     const { _id } = req.user;
-    const { id } = req.params;
-    // const { id: query_id } = req.query;
+    let { id } = req.params;
+    id = _id || id;
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
         const updated = yield addressModel_1.Address.find({ user: id });

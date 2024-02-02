@@ -11,11 +11,11 @@ import {
 import { authMiddleware,isAdmin } from "../middlewares/authMiddleware";
 const router = express.Router();
 
-router.post("/", createEnquiry);
+router.post("/",authMiddleware, createEnquiry);
 router.put("/:id", authMiddleware, isAdmin, updateEnquiry);
 router.delete("/:id", authMiddleware, isAdmin, deleteEnquiry);
 router.get("/by-id/:id", getEnquiryById);
 router.get("/by-user/:id", getEnquiryByUser);
-router.get("/", getallEnquiry);
+router.get("/",authMiddleware, isAdmin,getallEnquiry);
 
 export default router;

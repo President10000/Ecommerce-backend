@@ -13,13 +13,12 @@ import asyncHandler from "express-async-handler";
 // const validateMongoDbId = require("../../utils/validateMongodbId");
 import { validateMongoDbId } from "../../utils/validateMongodbId";
 
-
 const addItemToCart = asyncHandler(
   async (req: Req_with_user, res: Response) => {
     const { product_id, quantity }: { product_id?: string; quantity?: number } =
       req.body;
     const _id = req.user?._id;
-
+    const { populate } = req.query;
     try {
       if (!product_id || !quantity || !_id) throw new Error("missing details");
       validateMongoDbId(_id);
@@ -27,8 +26,9 @@ const addItemToCart = asyncHandler(
       if (isExist) {
         const updateQty = await Cart.findOneAndUpdate(
           { product: product_id, user: _id },
-          { quantity: isExist.quantity + quantity }
-        );
+          { quantity: isExist.quantity + quantity },
+          { new: true }
+        ).populate(  populate as string | string[]);
         res.json(updateQty);
       } else {
         let newCart = await new Cart({

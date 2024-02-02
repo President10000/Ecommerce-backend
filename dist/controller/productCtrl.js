@@ -210,42 +210,6 @@ const getAllProduct = (0, express_async_handler_1.default)((req, res) => __await
     }
 }));
 exports.getAllProduct = getAllProduct;
-// const addToWishlist = asyncHandler(async (req, res) => {
-//   const { _id } = req.user;
-//   const { prodId } = req.body;
-//   try {
-//     validateMongoDbId(prodId);
-//     const user = await User.findById(_id);
-//     const alreadyadded = user.wishlist.find((id) => id.toString() === prodId);
-//     if (alreadyadded) {
-//       let wishlist = await User.findByIdAndUpdate(
-//         _id,
-//         {
-//           $pull: { wishlist: prodId },
-//         },
-//         {
-//           new: true,
-//           projection: "wishlist",
-//         }
-//       );
-//       res.json({ status: "removed", wishlist });
-//     } else {
-//       let wishlist = await User.findByIdAndUpdate(
-//         _id,
-//         {
-//           $push: { wishlist: prodId },
-//         },
-//         {
-//           new: true,
-//           projection: "wishlist",
-//         }
-//       );
-//       res.json({ status: "added", wishlist });
-//     }
-//   } catch (error) {
-//     res.status(400).json({ message: error.message });
-//   }
-// });
 const rating = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.user)
         throw new Error("user not found");
