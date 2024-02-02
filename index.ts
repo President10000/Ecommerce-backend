@@ -37,7 +37,6 @@ dotenv.config();
 const PORT = process.env.PORT || 4000;
 dbConnect();
 app.use(morgan("dev"));
-
 const allowedOrigins = [
   "https://techtreasure.vercel.app",
   "https://raiappliances-admin-panel.vercel.app",
@@ -50,6 +49,7 @@ app.use(
     origin: allowedOrigins,
   })
 );
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));

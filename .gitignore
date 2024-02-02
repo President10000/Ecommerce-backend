@@ -2,4 +2,9 @@ dist/
 node_modules/
 .env
 rough.txt
+<<<<<<< HEAD
+=======
+dist/
+
+>>>>>>> 46da5c23746427f7976fb7829726005ea724f56f
 # public/images
