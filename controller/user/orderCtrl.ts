@@ -20,7 +20,14 @@ import { instance } from "../../utils/rajorpayInstance";
 const payOnDeliveryOrder = asyncHandler(async (req: Req_with_user, res) => {
   const { receipt, notes, address, couponApplied } = req.body;
   const _id = req.user?._id;
-
+  let { populate = "" } = req.query;
+  if (
+    populate != "products.product" &&
+    populate != "user" &&
+    populate != "address"
+  ) {
+    populate = "";
+  }
   if (!address || !receipt || !notes || !_id) {
     throw new Error("Create cash order failed");
   }
@@ -46,22 +53,12 @@ const payOnDeliveryOrder = asyncHandler(async (req: Req_with_user, res) => {
       }
 
       if (itemToOrder.quantity > stock?.quantity) {
-        res.status(400).json({ message: "product already sold out" });
+        // res.status(400).json({ message: "product already sold out" });
         throw new Error("product already sold out");
       }
 
-      finalAmout = finalAmout + stock.price *100* itemToOrder.quantity;
+      finalAmout = finalAmout + stock.price * 100 * itemToOrder.quantity;
     }
-
-    // if (couponApplied && userCart.totalAfterDiscount) {
-    //   finalAmout = userCart.totalAfterDiscount;
-    // } else {
-    //   finalAmout = userCart.cartTotal;
-    // }
-
-    // for(const product of userCart ){
-
-    // }
 
     let newOrder = await new Order({
       products: userCart,
@@ -93,17 +90,24 @@ const payOnDeliveryOrder = asyncHandler(async (req: Req_with_user, res) => {
       };
     });
     await Product.bulkWrite(update, {});
-    res.json(newOrder);
+    res.json(await newOrder.populate(populate as string | string[]));
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error");
   }
-  // }
 });
 
 const payNowOrder = asyncHandler(async (req: Req_with_user, res) => {
   const { receipt, notes, address, couponApplied } = req.body;
   const _id = req.user?._id;
+  let { populate = "" } = req.query;
+  if (
+    populate != "products.product" &&
+    populate != "user" &&
+    populate != "address"
+  ) {
+    populate = "";
+  }
 
   if (!address || !receipt || !notes || !_id) {
     throw new Error("Create cash order failed");
@@ -133,7 +137,7 @@ const payNowOrder = asyncHandler(async (req: Req_with_user, res) => {
         throw new Error("product already sold out");
       }
 
-      finalAmout = finalAmout + stock.price*100* itemToOrder.quantity;
+      finalAmout = finalAmout + stock.price * 100 * itemToOrder.quantity;
     }
 
     const paymentIntent = await instance.orders.create({
@@ -147,7 +151,6 @@ const payNowOrder = asyncHandler(async (req: Req_with_user, res) => {
       products: userCart,
       paymentIntent: {
         ...paymentIntent,
-        id: uniqid(),
         amount_paid: 0,
         amount_due: finalAmout,
         status: "created",
@@ -171,7 +174,7 @@ const payNowOrder = asyncHandler(async (req: Req_with_user, res) => {
       };
     });
     await Product.bulkWrite(update, {});
-    res.json(newOrder);
+    res.json(await newOrder.populate(populate as string | string[]));
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error");
@@ -183,7 +186,14 @@ const getOrdersByUser = asyncHandler(
     if (!req.user) throw new Error("user not found");
     let { _id } = req.user;
     const { id: param_id } = req.params;
-    const { populate } = req.query;
+    let { populate = "" } = req.query;
+    if (
+      populate != "products.product" &&
+      populate != "user" &&
+      populate != "address"
+    ) {
+      populate = "";
+    }
     _id = _id || param_id; //|| (query_id as string);
     try {
       validateMongoDbId(_id);
@@ -199,7 +209,14 @@ const getOrdersByUser = asyncHandler(
 );
 
 const getAllOrders = asyncHandler(async (req, res) => {
-  const { populate } = req.query;
+  let { populate = "" } = req.query;
+  if (
+    populate != "products.product" &&
+    populate != "user" &&
+    populate != "address"
+  ) {
+    populate = "";
+  }
   try {
     const alluserorders = await Order.find().populate(
       populate as string | string[]
@@ -213,7 +230,14 @@ const getAllOrders = asyncHandler(async (req, res) => {
 
 const getOrderById = asyncHandler(async (req, res) => {
   let { id } = req.params;
-  const { populate } = req.query;
+  let { populate = "" } = req.query;
+  if (
+    populate != "products.product" &&
+    populate != "user" &&
+    populate != "address"
+  ) {
+    populate = "";
+  }
   try {
     validateMongoDbId(id);
     const userorders = await Order.find({ _id: id }).populate(
@@ -228,7 +252,14 @@ const getOrderById = asyncHandler(async (req, res) => {
 
 const updateOrderStatus = asyncHandler(async (req, res) => {
   let { id } = req.params;
-  const { populate } = req.query;
+  let { populate = "" } = req.query;
+  if (
+    populate != "products.product" &&
+    populate != "user" &&
+    populate != "address"
+  ) {
+    populate = "";
+  }
   try {
     validateMongoDbId(id);
     const updateOrderStatus = await Order.findByIdAndUpdate(id, req.body, {

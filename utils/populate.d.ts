@@ -1,0 +1,5 @@
+export type cart="product"|"user"
+export type wishlist="product"|"user"
+export type address="user"
+export type enquiry="user"
+export type order="products.product"|"user"|"address"
