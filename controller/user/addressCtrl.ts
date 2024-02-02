@@ -11,6 +11,8 @@ import { Response } from "express";
 const saveAddress = asyncHandler(async (req: Req_with_user, res: Response) => {
   if (!req.user) throw new Error("user not found");
   const { _id } = req.user;
+  let { populate = "" } = req.query;
+  if (populate != "user") populate = "";
   const { phone_no, zipcode } = req.body;
   if (!zipcode || !phone_no) {
     res.status(400).json({ message: `zipcode and phone no is required ` });
@@ -19,7 +21,7 @@ const saveAddress = asyncHandler(async (req: Req_with_user, res: Response) => {
   try {
     validateMongoDbId(_id);
     let newAddress = await new Address({ ...req.body, user: _id }).save();
-    res.json(newAddress);
+    res.json(await newAddress.populate(populate as string | string[]));
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error");
@@ -30,8 +32,9 @@ const updateAddress = asyncHandler(
   async (req: Req_with_user, res: Response) => {
     if (!req.user) throw new Error("user not found");
     // const { _id } = req.user;
-    const { id} = req.params;
-    // const { id: query_id } = req.query;
+    const { id } = req.params;
+    let { populate = "" } = req.query;
+    if (populate != "user") populate = "";
     const { address } = req.body;
     const { phone_no, zipcode } = address;
 
@@ -43,7 +46,7 @@ const updateAddress = asyncHandler(
       validateMongoDbId(id);
       const updated = await Address.findOneAndUpdate({ _id: id }, address, {
         new: true,
-      });
+      }).populate(populate as string | string[]);
       res.json(updated);
     } catch (error) {
       console.error(error);
@@ -55,9 +58,9 @@ const updateAddress = asyncHandler(
 const deleteAddress = asyncHandler(
   async (req: Req_with_user, res: Response) => {
     if (!req.user) throw new Error("user not found");
-    // const { _id } = req.user;
+    let { populate = "" } = req.query;
+    if (populate != "user") populate = "";
     const { id } = req.params;
-    // const { id: query_id } = req.query;
 
     try {
       validateMongoDbId(id);
@@ -72,12 +75,16 @@ const deleteAddress = asyncHandler(
 
 const getAddressByUser = asyncHandler(async (req: Req_with_user, res) => {
   if (!req.user) throw new Error("user not found");
+  let { populate = "" } = req.query;
+  if (populate != "user") populate = "";
   const { _id } = req.user;
   let { id } = req.params;
-  id=_id||id
+  id = _id || id;
   try {
     validateMongoDbId(id);
-    const updated = await Address.find({ user: id });
+    const updated = await Address.find({ user: id }).populate(
+      populate as string | string[]
+    );
     res.json(updated);
   } catch (error) {
     console.error(error);
@@ -85,21 +92,26 @@ const getAddressByUser = asyncHandler(async (req: Req_with_user, res) => {
   }
 });
 
-const getAddressById = asyncHandler(async (req:Req_with_user, res:Response) => {
-  if (!req.user) throw new Error("user not found");
-  // const { _id } = req.user;
-  const { id } = req.params;
-  // const { id: query_id } = req.query;
+const getAddressById = asyncHandler(
+  async (req: Req_with_user, res: Response) => {
+    if (!req.user) throw new Error("user not found");
+    // const { _id } = req.user;
+    const { id } = req.params;
+    let { populate = "" } = req.query;
+    if (populate != "user") populate = "";
 
-  try {
-    validateMongoDbId(id);
-    const updated = await Address.find({ _id: id });
-    res.json(updated);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal server error");
+    try {
+      validateMongoDbId(id);
+      const updated = await Address.find({ _id: id }).populate(
+        populate as string | string[]
+      );
+      res.json(updated);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Internal server error");
+    }
   }
-});
+);
 
 export {
   saveAddress,

@@ -18,7 +18,8 @@ const addItemToCart = asyncHandler(
     const { product_id, quantity }: { product_id?: string; quantity?: number } =
       req.body;
     const _id = req.user?._id;
-    const { populate } = req.query;
+    let { populate = "" } = req.query;
+    if (populate != "product" && populate != "user") populate = "";
     try {
       if (!product_id || !quantity || !_id) throw new Error("missing details");
       validateMongoDbId(_id);
@@ -28,7 +29,7 @@ const addItemToCart = asyncHandler(
           { product: product_id, user: _id },
           { quantity: isExist.quantity + quantity },
           { new: true }
-        ).populate(  populate as string | string[]);
+        ).populate(populate as string | string[]);
         res.json(updateQty);
       } else {
         let newCart = await new Cart({
@@ -36,7 +37,7 @@ const addItemToCart = asyncHandler(
           quantity,
           user: _id,
         }).save();
-        res.json(newCart);
+        res.json(await newCart.populate(populate as string | string[]));
       }
     } catch (error) {
       console.error(error);
@@ -48,7 +49,8 @@ const addItemToCart = asyncHandler(
 const getUserCart = asyncHandler(async (req: Req_with_user, res: Response) => {
   if (!req.user) throw new Error("user not found");
   const { _id } = req.user;
-  const { populate } = req.query;
+  let { populate = "" } = req.query;
+  if (populate != "product" && populate != "user") populate = "";
   try {
     validateMongoDbId(_id);
     const cart = await Cart.find({ user: _id }).populate(
@@ -66,7 +68,8 @@ const removeItemFromCart = asyncHandler(
     if (!req.user) throw new Error("user not found");
     const { toRemove }: { toRemove: string | string[] } = req.body;
     const { _id } = req.user;
-    const { populate } = req.query;
+    let { populate = "" } = req.query;
+    if (populate != "product" && populate != "user") populate = "";
     try {
       validateMongoDbId(_id);
       if (typeof toRemove === "string") {
