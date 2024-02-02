@@ -73,8 +73,8 @@ const deleteAddress = asyncHandler(
 const getAddressByUser = asyncHandler(async (req: Req_with_user, res) => {
   if (!req.user) throw new Error("user not found");
   const { _id } = req.user;
-  const { id } = req.params;
-  // const { id: query_id } = req.query;
+  let { id } = req.params;
+  id=_id||id
   try {
     validateMongoDbId(id);
     const updated = await Address.find({ user: id });
