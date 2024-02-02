@@ -32,7 +32,9 @@ const createOrDeleteItem = asyncHandler(
         }).save();
         res.json({
           status: "added",
-          wish: await added.populate(populate as string | string[]),
+          wish: populate
+            ? await added.populate(populate as string | string[])
+            : added,
         });
       }
     } catch (error) {
@@ -53,10 +55,15 @@ const getWishlistByUser = asyncHandler(
     let id = _id || param_id;
     try {
       validateMongoDbId(id);
-      const wishlist = await wishlistModel
-        .find({ user: id })
-        .populate(populate as string | string[]);
-      res.json(wishlist);
+      if (populate) {
+        const wishlist = await wishlistModel
+          .find({ user: id })
+          .populate(populate as string | string[]);
+        res.json(wishlist);
+      } else {
+        const wishlist = await wishlistModel.find({ user: id });
+        res.json(wishlist);
+      }
     } catch (error) {
       console.error(error);
       res.status(500).send("Internal server error");
@@ -71,10 +78,15 @@ const getWishById = asyncHandler(async (req: Req_with_user, res: Response) => {
   if (populate != "product" && populate != "user") populate = "";
   try {
     validateMongoDbId(id);
-    const wishlist = await User.find({ _id: id }).populate(
-      populate as string | string[]
-    );
-    res.json(wishlist);
+    if (populate) {
+      const wishlist = await User.find({ _id: id }).populate(
+        populate as string | string[]
+      );
+      res.json(wishlist);
+    } else {
+      const wishlist = await User.find({ _id: id });
+      res.json(wishlist);
+    }
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error");

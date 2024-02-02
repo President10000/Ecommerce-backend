@@ -24,10 +24,12 @@ const createOrDeleteItem = (0, express_async_handler_1.default)((req, res) => __
     if (!req.user)
         throw new Error("user not found");
     const { _id } = req.user;
+    let { populate = "" } = req.query;
+    if (populate != "product" && populate != "user")
+        populate = "";
     const { id } = req.params;
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
-        // const user = await User.findById(_id);
         const alreadyadded = yield wishlistModel_1.default.findOne({
             user: _id,
             $or: [{ _id: id }, { product: id }],
@@ -41,7 +43,10 @@ const createOrDeleteItem = (0, express_async_handler_1.default)((req, res) => __
                 product: id,
                 user: _id,
             }).save();
-            res.json({ status: "added", wish: added });
+            res.json({
+                status: "added",
+                wish: yield added.populate(populate),
+            });
         }
     }
     catch (error) {
@@ -55,7 +60,9 @@ const getWishlistByUser = (0, express_async_handler_1.default)((req, res) => __a
         throw new Error("user not found");
     const { _id } = req.user;
     const { id: param_id } = req.params;
-    const { populate } = req.query;
+    let { populate = "" } = req.query;
+    if (populate != "product" && populate != "user")
+        populate = "";
     let id = _id || param_id;
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
@@ -75,7 +82,9 @@ const getWishById = (0, express_async_handler_1.default)((req, res) => __awaiter
         throw new Error("user not found");
     // const { _id } = req.user;
     const { id } = req.params;
-    const { populate } = req.query;
+    let { populate = "" } = req.query;
+    if (populate != "product" && populate != "user")
+        populate = "";
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
         const wishlist = yield userModel_1.default.find({ _id: id }).populate(populate);

@@ -11,7 +11,7 @@ const createEnquiry = asyncHandler(async (req, res) => {
   if (populate != "user") populate = "";
   try {
     const newEnquiry = await new Enquiry(req.body).save();
-    res.json(await newEnquiry.populate(populate as string | string[]));
+    res.json(populate?await newEnquiry.populate(populate as string | string[]):newEnquiry);
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error");
@@ -24,10 +24,10 @@ const updateEnquiry = asyncHandler(async (req, res) => {
   const { id } = req.params;
   try {
     validateMongoDbId(id);
-    const updatedEnquiry = await Enquiry.findByIdAndUpdate(id, req.body, {
+    const updated = await Enquiry.findByIdAndUpdate(id, req.body, {
       new: true,
-    }).populate(populate as string | string[]);
-    res.json(updatedEnquiry);
+    });
+    res.json(populate?await updated?.populate(populate as string | string[]):updated);
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error");
@@ -51,10 +51,15 @@ const getEnquiryById = asyncHandler(async (req, res) => {
   const { id } = req.params;
   try {
     validateMongoDbId(id);
+   if(populate){
     const getaEnquiry = await Enquiry.findById(id).populate(
       populate as string | string[]
     );
     res.json(getaEnquiry);
+   }else{
+    const getaEnquiry = await Enquiry.findById(id)
+    res.json(getaEnquiry);
+   }
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error");
@@ -68,10 +73,15 @@ const getEnquiryByUser = asyncHandler(async (req: Req_with_user, res) => {
   id = id || req.user._id;
   try {
     validateMongoDbId(id);
+   if(populate){
     const getaEnquiry = await Enquiry.find({ user: id }).populate(
       populate as string | string[]
     );
     res.json(getaEnquiry);
+   }else{
+    const getaEnquiry = await Enquiry.find({ user: id })
+    res.json(getaEnquiry);
+   }
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error");
@@ -81,10 +91,15 @@ const getallEnquiry = asyncHandler(async (req, res) => {
   let { populate = "" } = req.query;
   if (populate != "user") populate = "";
   try {
+   if(populate){
     const getallEnquiry = await Enquiry.find().populate(
       populate as string | string[]
     );
     res.json(getallEnquiry);
+   }else{
+    const getallEnquiry = await Enquiry.find()
+    res.json(getallEnquiry);
+   }
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error");

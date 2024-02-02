@@ -26,7 +26,9 @@ const addItemToCart = (0, express_async_handler_1.default)((req, res) => __await
     var _a;
     const { product_id, quantity } = req.body;
     const _id = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
-    const { populate } = req.query;
+    let { populate = "" } = req.query;
+    if (populate != "product" && populate != "user")
+        populate = "";
     try {
         if (!product_id || !quantity || !_id)
             throw new Error("missing details");
@@ -42,7 +44,7 @@ const addItemToCart = (0, express_async_handler_1.default)((req, res) => __await
                 quantity,
                 user: _id,
             }).save();
-            res.json(newCart);
+            res.json(yield newCart.populate(populate));
         }
     }
     catch (error) {
@@ -55,7 +57,9 @@ const getUserCart = (0, express_async_handler_1.default)((req, res) => __awaiter
     if (!req.user)
         throw new Error("user not found");
     const { _id } = req.user;
-    const { populate } = req.query;
+    let { populate = "" } = req.query;
+    if (populate != "product" && populate != "user")
+        populate = "";
     try {
         (0, validateMongodbId_1.validateMongoDbId)(_id);
         const cart = yield cartModel_1.default.find({ user: _id }).populate(populate);
@@ -72,7 +76,9 @@ const removeItemFromCart = (0, express_async_handler_1.default)((req, res) => __
         throw new Error("user not found");
     const { toRemove } = req.body;
     const { _id } = req.user;
-    const { populate } = req.query;
+    let { populate = "" } = req.query;
+    if (populate != "product" && populate != "user")
+        populate = "";
     try {
         (0, validateMongodbId_1.validateMongoDbId)(_id);
         if (typeof toRemove === "string") {

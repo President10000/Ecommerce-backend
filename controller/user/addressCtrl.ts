@@ -21,7 +21,11 @@ const saveAddress = asyncHandler(async (req: Req_with_user, res: Response) => {
   try {
     validateMongoDbId(_id);
     let newAddress = await new Address({ ...req.body, user: _id }).save();
-    res.json(await newAddress.populate(populate as string | string[]));
+    res.json(
+      populate
+        ? await newAddress.populate(populate as string | string[])
+        : newAddress
+    );
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error");
@@ -46,8 +50,10 @@ const updateAddress = asyncHandler(
       validateMongoDbId(id);
       const updated = await Address.findOneAndUpdate({ _id: id }, address, {
         new: true,
-      }).populate(populate as string | string[]);
-      res.json(updated);
+      });
+      res.json(
+        populate ?await updated?.populate(populate as string | string[]) : updated
+      );
     } catch (error) {
       console.error(error);
       res.status(500).send("Internal server error");
@@ -58,8 +64,8 @@ const updateAddress = asyncHandler(
 const deleteAddress = asyncHandler(
   async (req: Req_with_user, res: Response) => {
     if (!req.user) throw new Error("user not found");
-    let { populate = "" } = req.query;
-    if (populate != "user") populate = "";
+    // let { populate = "" } = req.query;
+    // if (populate != "user") populate = "";
     const { id } = req.params;
 
     try {
@@ -82,10 +88,15 @@ const getAddressByUser = asyncHandler(async (req: Req_with_user, res) => {
   id = _id || id;
   try {
     validateMongoDbId(id);
+   if(populate){
     const updated = await Address.find({ user: id }).populate(
       populate as string | string[]
     );
     res.json(updated);
+   }else{
+    const updated = await Address.find({ user: id })
+    res.json(updated);
+   }
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error");
@@ -102,10 +113,15 @@ const getAddressById = asyncHandler(
 
     try {
       validateMongoDbId(id);
+     if(populate){
       const updated = await Address.find({ _id: id }).populate(
         populate as string | string[]
       );
       res.json(updated);
+     }else{
+      const updated = await Address.find({ _id: id })
+      res.json(updated);
+     }
     } catch (error) {
       console.error(error);
       res.status(500).send("Internal server error");
