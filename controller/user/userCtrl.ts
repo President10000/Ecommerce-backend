@@ -159,7 +159,7 @@ const handleRefreshToken = asyncHandler(async (req: Request, res: Response) => {
 
 // logout functionality
 
-const logout = asyncHandler(async (req:Request, res:any) => {
+const logout = asyncHandler(async (req: Request, res: any) => {
   const cookie = req.cookies;
   if (!cookie?.refreshToken) throw new Error("No Refresh Token in Cookies");
   const refreshToken = cookie.refreshToken;
@@ -186,11 +186,11 @@ const logout = asyncHandler(async (req:Request, res:any) => {
 
 const updatedUser = asyncHandler(async (req: Req_with_user, res: Response) => {
   if (!req.user) throw new Error("user not found");
-  const {_id} = req.user;
+  const { _id } = req.user;
   const { id: body_id } = req.body;
   // const { id: param_id } = req.params;
   const { id: query_id } = req.query;
-  let id =_id||  query_id || body_id;
+  let id = _id || query_id || body_id;
   try {
     validateMongoDbId(id);
     const updatedUser = await User.findByIdAndUpdate(
@@ -211,7 +211,6 @@ const updatedUser = asyncHandler(async (req: Req_with_user, res: Response) => {
     res.status(500).send("Internal server error");
   }
 });
-
 
 // Get all users
 
@@ -245,8 +244,8 @@ const getaUser = asyncHandler(async (req: Request, res: Response) => {
 
 const deleteaUser = asyncHandler(async (req: Request, res: Response) => {
   // const { id: body_id } = req.body;
-    const { id } = req.params;
-    // const { id: query_id } = req.query;
+  const { id } = req.params;
+  // const { id: query_id } = req.query;
 
   try {
     validateMongoDbId(id);
@@ -305,7 +304,6 @@ const unblockUser = asyncHandler(async (req: Request, res: Response) => {
     res.status(500).send("Internal server error");
   }
 });
-
 
 export {
   createUser,
