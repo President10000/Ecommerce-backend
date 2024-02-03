@@ -20,9 +20,12 @@ const express_async_handler_1 = __importDefault(require("express-async-handler")
 // const validateMongoDbId = require("../utils/validateMongodbId");
 const validateMongodbId_1 = require("../utils/validateMongodbId");
 const createEnquiry = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let { populate = "" } = req.query;
+    if (populate != "user")
+        populate = "";
     try {
-        const newEnquiry = yield enqModel_1.default.create(req.body);
-        res.json(newEnquiry);
+        const newEnquiry = yield new enqModel_1.default(req.body).save();
+        res.json(yield newEnquiry.populate(populate));
     }
     catch (error) {
         console.error(error);
@@ -31,13 +34,15 @@ const createEnquiry = (0, express_async_handler_1.default)((req, res) => __await
 }));
 exports.createEnquiry = createEnquiry;
 const updateEnquiry = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // const { id: body_id } = req.body;
+    let { populate = "" } = req.query;
+    if (populate != "user")
+        populate = "";
     const { id } = req.params;
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
         const updatedEnquiry = yield enqModel_1.default.findByIdAndUpdate(id, req.body, {
             new: true,
-        });
+        }).populate(populate);
         res.json(updatedEnquiry);
     }
     catch (error) {
@@ -60,10 +65,13 @@ const deleteEnquiry = (0, express_async_handler_1.default)((req, res) => __await
 }));
 exports.deleteEnquiry = deleteEnquiry;
 const getEnquiryById = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let { populate = "" } = req.query;
+    if (populate != "user")
+        populate = "";
     const { id } = req.params;
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
-        const getaEnquiry = yield enqModel_1.default.findById(id);
+        const getaEnquiry = yield enqModel_1.default.findById(id).populate(populate);
         res.json(getaEnquiry);
     }
     catch (error) {
@@ -73,13 +81,16 @@ const getEnquiryById = (0, express_async_handler_1.default)((req, res) => __awai
 }));
 exports.getEnquiryById = getEnquiryById;
 const getEnquiryByUser = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let { populate = "" } = req.query;
+    if (populate != "user")
+        populate = "";
     if (!req.user)
         throw new Error("user not found");
     let { id } = req.params;
     id = id || req.user._id;
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
-        const getaEnquiry = yield enqModel_1.default.findById(id);
+        const getaEnquiry = yield enqModel_1.default.find({ user: id }).populate(populate);
         res.json(getaEnquiry);
     }
     catch (error) {
@@ -89,8 +100,11 @@ const getEnquiryByUser = (0, express_async_handler_1.default)((req, res) => __aw
 }));
 exports.getEnquiryByUser = getEnquiryByUser;
 const getallEnquiry = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let { populate = "" } = req.query;
+    if (populate != "user")
+        populate = "";
     try {
-        const getallEnquiry = yield enqModel_1.default.find();
+        const getallEnquiry = yield enqModel_1.default.find().populate(populate);
         res.json(getallEnquiry);
     }
     catch (error) {

@@ -6,17 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 // Declare the Schema of the Mongo model
 var enqSchema = new mongoose_1.default.Schema({
-    name: {
-        type: String,
-        required: true,
-    },
-    email: {
-        type: String,
-        required: true,
-    },
-    mobile: {
-        type: String,
-        required: true,
+    user: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: "User",
     },
     title: {
         type: String,

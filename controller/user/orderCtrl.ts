@@ -90,7 +90,11 @@ const payOnDeliveryOrder = asyncHandler(async (req: Req_with_user, res) => {
       };
     });
     await Product.bulkWrite(update, {});
-    res.json(await newOrder.populate(populate as string | string[]));
+    res.json(
+      populate
+        ? await newOrder.populate(populate as string | string[])
+        : newOrder
+    );
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error");
@@ -174,7 +178,11 @@ const payNowOrder = asyncHandler(async (req: Req_with_user, res) => {
       };
     });
     await Product.bulkWrite(update, {});
-    res.json(await newOrder.populate(populate as string | string[]));
+    res.json(
+      populate
+        ? await newOrder.populate(populate as string | string[])
+        : newOrder
+    );
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error");
@@ -197,10 +205,15 @@ const getOrdersByUser = asyncHandler(
     _id = _id || param_id; //|| (query_id as string);
     try {
       validateMongoDbId(_id);
-      const userorders = await Order.find({ user: _id })
-        .populate(populate as string | string[])
-        .exec();
-      res.json(userorders);
+      if (populate) {
+        const userorders = await Order.find({ user: _id }).populate(
+          populate as string | string[]
+        );
+        res.json(userorders);
+      } else {
+        const userorders = await Order.find({ user: _id });
+        res.json(userorders);
+      }
     } catch (error) {
       console.error(error);
       res.status(500).send("Internal server error");
@@ -218,10 +231,15 @@ const getAllOrders = asyncHandler(async (req, res) => {
     populate = "";
   }
   try {
-    const alluserorders = await Order.find().populate(
-      populate as string | string[]
-    ); //.exec();
-    res.json(alluserorders);
+    if (populate) {
+      const alluserorders = await Order.find().populate(
+        populate as string | string[]
+      ); //.exec();
+      res.json(alluserorders);
+    } else {
+      const alluserorders = await Order.find();
+      res.json(alluserorders);
+    }
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error");
@@ -240,10 +258,15 @@ const getOrderById = asyncHandler(async (req, res) => {
   }
   try {
     validateMongoDbId(id);
-    const userorders = await Order.find({ _id: id }).populate(
-      populate as string | string[]
-    ); //.exec();
-    res.json(userorders);
+    if (populate) {
+      const userorders = await Order.find({ _id: id }).populate(
+        populate as string | string[]
+      ); //.exec();
+      res.json(userorders);
+    } else {
+      const userorders = await Order.find({ _id: id });
+      res.json(userorders);
+    }
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error");
@@ -262,10 +285,17 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
   }
   try {
     validateMongoDbId(id);
-    const updateOrderStatus = await Order.findByIdAndUpdate(id, req.body, {
-      new: true,
-    }).populate(populate as string | string[]);
-    res.json(updateOrderStatus);
+    if (populate) {
+      const updateOrderStatus = await Order.findByIdAndUpdate(id, req.body, {
+        new: true,
+      }).populate(populate as string | string[]);
+      res.json(updateOrderStatus);
+    } else {
+      const updateOrderStatus = await Order.findByIdAndUpdate(id, req.body, {
+        new: true,
+      });
+      res.json(updateOrderStatus);
+    }
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error");

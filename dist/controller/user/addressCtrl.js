@@ -23,6 +23,9 @@ const saveAddress = (0, express_async_handler_1.default)((req, res) => __awaiter
     if (!req.user)
         throw new Error("user not found");
     const { _id } = req.user;
+    let { populate = "" } = req.query;
+    if (populate != "user")
+        populate = "";
     const { phone_no, zipcode } = req.body;
     if (!zipcode || !phone_no) {
         res.status(400).json({ message: `zipcode and phone no is required ` });
@@ -30,7 +33,7 @@ const saveAddress = (0, express_async_handler_1.default)((req, res) => __awaiter
     try {
         (0, validateMongodbId_1.validateMongoDbId)(_id);
         let newAddress = yield new addressModel_1.Address(Object.assign(Object.assign({}, req.body), { user: _id })).save();
-        res.json(newAddress);
+        res.json(yield newAddress.populate(populate));
     }
     catch (error) {
         console.error(error);
@@ -43,7 +46,9 @@ const updateAddress = (0, express_async_handler_1.default)((req, res) => __await
         throw new Error("user not found");
     // const { _id } = req.user;
     const { id } = req.params;
-    // const { id: query_id } = req.query;
+    let { populate = "" } = req.query;
+    if (populate != "user")
+        populate = "";
     const { address } = req.body;
     const { phone_no, zipcode } = address;
     if (!zipcode || !phone_no) {
@@ -53,7 +58,7 @@ const updateAddress = (0, express_async_handler_1.default)((req, res) => __await
         (0, validateMongodbId_1.validateMongoDbId)(id);
         const updated = yield addressModel_1.Address.findOneAndUpdate({ _id: id }, address, {
             new: true,
-        });
+        }).populate(populate);
         res.json(updated);
     }
     catch (error) {
@@ -65,9 +70,10 @@ exports.updateAddress = updateAddress;
 const deleteAddress = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.user)
         throw new Error("user not found");
-    // const { _id } = req.user;
+    let { populate = "" } = req.query;
+    if (populate != "user")
+        populate = "";
     const { id } = req.params;
-    // const { id: query_id } = req.query;
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
         const updated = yield addressModel_1.Address.findByIdAndDelete(id);
@@ -82,12 +88,15 @@ exports.deleteAddress = deleteAddress;
 const getAddressByUser = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.user)
         throw new Error("user not found");
+    let { populate = "" } = req.query;
+    if (populate != "user")
+        populate = "";
     const { _id } = req.user;
     let { id } = req.params;
     id = _id || id;
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
-        const updated = yield addressModel_1.Address.find({ user: id });
+        const updated = yield addressModel_1.Address.find({ user: id }).populate(populate);
         res.json(updated);
     }
     catch (error) {
@@ -101,10 +110,12 @@ const getAddressById = (0, express_async_handler_1.default)((req, res) => __awai
         throw new Error("user not found");
     // const { _id } = req.user;
     const { id } = req.params;
-    // const { id: query_id } = req.query;
+    let { populate = "" } = req.query;
+    if (populate != "user")
+        populate = "";
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
-        const updated = yield addressModel_1.Address.find({ _id: id });
+        const updated = yield addressModel_1.Address.find({ _id: id }).populate(populate);
         res.json(updated);
     }
     catch (error) {

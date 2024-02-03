@@ -30,6 +30,12 @@ const payOnDeliveryOrder = (0, express_async_handler_1.default)((req, res) => __
     var _a;
     const { receipt, notes, address, couponApplied } = req.body;
     const _id = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
+    let { populate = "" } = req.query;
+    if (populate != "products.product" &&
+        populate != "user" &&
+        populate != "address") {
+        populate = "";
+    }
     if (!address || !receipt || !notes || !_id) {
         throw new Error("Create cash order failed");
     }
@@ -48,18 +54,11 @@ const payOnDeliveryOrder = (0, express_async_handler_1.default)((req, res) => __
                 throw new Error("quantity not found");
             }
             if (itemToOrder.quantity > (stock === null || stock === void 0 ? void 0 : stock.quantity)) {
-                res.status(400).json({ message: "product already sold out" });
+                // res.status(400).json({ message: "product already sold out" });
                 throw new Error("product already sold out");
             }
             finalAmout = finalAmout + stock.price * 100 * itemToOrder.quantity;
         }
-        // if (couponApplied && userCart.totalAfterDiscount) {
-        //   finalAmout = userCart.totalAfterDiscount;
-        // } else {
-        //   finalAmout = userCart.cartTotal;
-        // }
-        // for(const product of userCart ){
-        // }
         let newOrder = yield new orderModel_1.default({
             products: userCart,
             address,
@@ -90,19 +89,24 @@ const payOnDeliveryOrder = (0, express_async_handler_1.default)((req, res) => __
             };
         });
         yield productModel_1.default.bulkWrite(update, {});
-        res.json(newOrder);
+        res.json(yield newOrder.populate(populate));
     }
     catch (error) {
         console.error(error);
         res.status(500).send("Internal server error");
     }
-    // }
 }));
 exports.payOnDeliveryOrder = payOnDeliveryOrder;
 const payNowOrder = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _b;
     const { receipt, notes, address, couponApplied } = req.body;
     const _id = (_b = req.user) === null || _b === void 0 ? void 0 : _b._id;
+    let { populate = "" } = req.query;
+    if (populate != "products.product" &&
+        populate != "user" &&
+        populate != "address") {
+        populate = "";
+    }
     if (!address || !receipt || !notes || !_id) {
         throw new Error("Create cash order failed");
     }
@@ -132,7 +136,7 @@ const payNowOrder = (0, express_async_handler_1.default)((req, res) => __awaiter
         });
         const newOrder = yield new orderModel_1.default({
             products: userCart,
-            paymentIntent: Object.assign(Object.assign({}, paymentIntent), { id: (0, uniqid_1.default)(), amount_paid: 0, amount_due: finalAmout, status: "created", method: "COD", created_at: Date.now() }),
+            paymentIntent: Object.assign(Object.assign({}, paymentIntent), { amount_paid: 0, amount_due: finalAmout, status: "created", method: "COD", created_at: Date.now() }),
             paymentMode: "RAZORPAY",
             address,
             user: _id,
@@ -149,7 +153,7 @@ const payNowOrder = (0, express_async_handler_1.default)((req, res) => __awaiter
             };
         });
         yield productModel_1.default.bulkWrite(update, {});
-        res.json(newOrder);
+        res.json(yield newOrder.populate(populate));
     }
     catch (error) {
         console.error(error);
@@ -162,7 +166,12 @@ const getOrdersByUser = (0, express_async_handler_1.default)((req, res) => __awa
         throw new Error("user not found");
     let { _id } = req.user;
     const { id: param_id } = req.params;
-    const { populate } = req.query;
+    let { populate = "" } = req.query;
+    if (populate != "products.product" &&
+        populate != "user" &&
+        populate != "address") {
+        populate = "";
+    }
     _id = _id || param_id; //|| (query_id as string);
     try {
         (0, validateMongodbId_1.validateMongoDbId)(_id);
@@ -178,7 +187,12 @@ const getOrdersByUser = (0, express_async_handler_1.default)((req, res) => __awa
 }));
 exports.getOrdersByUser = getOrdersByUser;
 const getAllOrders = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { populate } = req.query;
+    let { populate = "" } = req.query;
+    if (populate != "products.product" &&
+        populate != "user" &&
+        populate != "address") {
+        populate = "";
+    }
     try {
         const alluserorders = yield orderModel_1.default.find().populate(populate); //.exec();
         res.json(alluserorders);
@@ -191,7 +205,12 @@ const getAllOrders = (0, express_async_handler_1.default)((req, res) => __awaite
 exports.getAllOrders = getAllOrders;
 const getOrderById = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let { id } = req.params;
-    const { populate } = req.query;
+    let { populate = "" } = req.query;
+    if (populate != "products.product" &&
+        populate != "user" &&
+        populate != "address") {
+        populate = "";
+    }
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
         const userorders = yield orderModel_1.default.find({ _id: id }).populate(populate); //.exec();
@@ -205,7 +224,12 @@ const getOrderById = (0, express_async_handler_1.default)((req, res) => __awaite
 exports.getOrderById = getOrderById;
 const updateOrderStatus = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let { id } = req.params;
-    const { populate } = req.query;
+    let { populate = "" } = req.query;
+    if (populate != "products.product" &&
+        populate != "user" &&
+        populate != "address") {
+        populate = "";
+    }
     try {
         (0, validateMongodbId_1.validateMongoDbId)(id);
         const updateOrderStatus = yield orderModel_1.default.findByIdAndUpdate(id, req.body, {
