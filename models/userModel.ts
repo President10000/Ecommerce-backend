@@ -11,11 +11,13 @@ interface Methods {
   createPasswordResetToken(): Promise<string>;
 }
 export interface user {
-  _id:string,
+  _id: string;
   firstname: string;
   lastname: string;
   email: string;
+  isEmailVerified: boolean;
   mobile: string;
+  isMobileNumberVerified: boolean;
   password: string;
   role: "user" | "admin";
   isBlocked: boolean;
@@ -44,6 +46,7 @@ var userSchema = new Schema<user, UserModel, Methods>(
       required: true,
       unique: true,
     },
+    isEmailVerified: Boolean,
     mobile: {
       type: String,
       required: true,
@@ -51,12 +54,14 @@ var userSchema = new Schema<user, UserModel, Methods>(
       maxLength: 10,
       minLength: 10,
     },
+    isMobileNumberVerified: Boolean,
     password: {
       type: String,
       required: true,
       minLength: 6,
       maxLength: 100,
     },
+
     role: {
       type: String,
       default: "user",
@@ -65,12 +70,6 @@ var userSchema = new Schema<user, UserModel, Methods>(
       type: Boolean,
       default: false,
     },
-    // cart: {
-    //   type: Array,
-    //   default: [],
-    // },
-    // address: [[{ lable: String, value: String }]],
-    // wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
     refreshToken: {
       type: String,
     },

@@ -18,29 +18,45 @@ import { generateRefreshToken } from "../../config/refreshtoken";
 // const crypto = require("crypto");
 import jwt from "jsonwebtoken";
 import { Req_with_user } from "../../middlewares/authMiddleware";
-// const sendEmail = require("../emailCtrl");
+import uniqid from "uniqid";
+import { base_url } from "../../utils/axiosConfig";
+import { transporter } from "../../utils/emaiTransporter";
 
 // Create a User ----------------------------------------------
 
+const usersToVerify: {
+  date:number
+  _id: string;
+  email: string;
+  verificationToken: string;
+}[] = [];
+
 const createUser = asyncHandler(async (req: Request, res: Response) => {
-  /**
-   * TODO:Get the email from req.body
-   */
   const email = req.body.email;
+
   if (!email) {
     res.json(404).json({ message: "Invalid Credentials" });
   }
-  /**
-   * TODO:With the help of email find the user exists or not
-   */
-
+try {
+  
   const findUser = await User.findOne({ email: email });
 
   if (!findUser) {
-    /**
-     * TODO:if user not found user create a new user
-     */
-    const newUser = await User.create(req.body);
+    const newUser = await new User(req.body).save();
+
+    const verificationToken = uniqid();
+    // Save user with verification token (in a real app, you'd save this to a database)
+    usersToVerify.push({ _id: newUser._id, email, verificationToken ,date:Date.now()});
+
+    // Send verification email
+    const mailOptions = {
+      from: '"Hey 👻" <abc@gmail.com.com>',
+      to: email,
+      subject: "Email Verification",
+      text: `Click the following link to verify your email: ${base_url}user/verify/email/${verificationToken}`,
+    };
+
+    await transporter.sendMail(mailOptions)
     res.json({
       _id: newUser._id,
       firstname: newUser.firstname,
@@ -50,11 +66,71 @@ const createUser = asyncHandler(async (req: Request, res: Response) => {
       token: generateToken(newUser._id.toString()),
     });
   } else {
-    /**
-     * TODO:if user found then thow an error: User already exists
-     */
     // throw new Error("User Already Exists");
     res.status(400).json({ message: "User Already Exists" });
+  }
+} catch (error:any) {
+  res.status(400).json({ error });
+  // throw new Error("internal server error")
+}
+});
+
+const generateTokenToVerifyEmail = asyncHandler(async (req: Req_with_user, res: Response) => {
+  // const email = req.body.email;
+  if(!req.user){
+    throw new Error("user not found")
+  }
+  const {_id,email}=req.user
+
+
+try {
+  
+  const verificationToken = uniqid();
+  // Save user with verification token (in a real app, you'd save this to a database)
+  usersToVerify.push({ _id: _id, email, verificationToken ,date:Date.now()});
+
+  // Send verification email
+  const mailOptions = {
+    from: '"Hey 👻" <abc@gmail.com.com>',
+    to: email,
+    subject: "Email Verification",
+    text: `Click the following link to verify your email: ${base_url}user/verify/email/${verificationToken}`,
+  };
+
+  await transporter.sendMail(mailOptions)
+  res.json({
+    status:true,message:"sent to registered email"
+  });
+
+} catch (error:any) {
+  // res.status(400).json({ error });
+  throw new Error("internal server error")
+}
+});
+
+
+
+const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
+  const { token } = req.params;
+  const user = usersToVerify.find((u) => u.verificationToken === token);
+  try {
+    if (!user) {
+      res
+        .status(404)
+        .json({ succsess: false, message: "Invalid verification token" });
+    } else {
+      await User.findByIdAndUpdate(user._id, {
+        isEmailVerified: true,
+      });
+  
+      console.log("Email verified for user:", user.email);
+      res.json({
+        succsess: true,
+        message: "Email verified successfully",
+      });
+    }
+  } catch (error) {
+    throw new Error("unable to verify")
   }
 });
 
@@ -216,7 +292,7 @@ const updatedUser = asyncHandler(async (req: Req_with_user, res: Response) => {
 
 const getallUser = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const getUsers = await User.find()
+    const getUsers = await User.find();
     res.json(getUsers);
   } catch (error) {
     console.error(error);
@@ -307,6 +383,8 @@ const unblockUser = asyncHandler(async (req: Request, res: Response) => {
 
 export {
   createUser,
+  verifyEmail,
+  generateTokenToVerifyEmail,
   loginUserCtrl,
   getallUser,
   getaUser,

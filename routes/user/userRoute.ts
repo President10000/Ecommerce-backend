@@ -12,6 +12,8 @@ import {
   handleRefreshToken,
   logout,
   loginAdmin,
+  verifyEmail,
+  generateTokenToVerifyEmail,
 } from "../../controller/user/userCtrl";
 // const passwordRoute = require("./passwordRoute");
 import passwordRoute from "./passwordRoute"
@@ -29,6 +31,9 @@ import { authMiddleware, isAdmin } from "../../middlewares/authMiddleware";
 const router = express.Router();
 
 router.post("/register", createUser);
+router.get("/verify/email/:token", verifyEmail);
+router.post("/verify/email",authMiddleware, generateTokenToVerifyEmail);
+
 router.get("/refresh", handleRefreshToken);
 
 router.post("/login", loginUserCtrl);
