@@ -12,7 +12,7 @@ import crypto from "crypto"
 import jwt from "jsonwebtoken"
 
 // const sendEmail = require("../emailCtrl");
-import sendEmail from "../emailCtrl";
+// import sendEmail from "../emailCtrl";
 import { Req_with_user } from "../../middlewares/authMiddleware";
 
 
@@ -46,7 +46,7 @@ const updatePassword = asyncHandler(async (req:Req_with_user, res) => {
         subject: "Forgot Password Link",
         htm: resetURL,
       };
-      sendEmail(data);
+      // sendEmail(data);
       res.json(token);
     } catch (error) {
       console.error(error);
