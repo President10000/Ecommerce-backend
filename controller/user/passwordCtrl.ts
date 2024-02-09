@@ -55,7 +55,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
     await user.save();
     const resetURL = `Hi, Please follow this link to reset Your Password. This link is valid till 10 minutes from now. ${front_end_route_to_reset_password}?token=${token}`;
     const mailOptions = {
-      from: "",
+      from: '"Hey 👻" <abc@gmail.com.com>',
       to: email,
       subject: "Reset Your Password",
       text: resetURL,
