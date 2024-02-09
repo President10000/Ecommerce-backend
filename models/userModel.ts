@@ -32,13 +32,11 @@ var userSchema = new Schema<user, UserModel, Methods>(
   {
     firstname: {
       type: String,
-      required: true,
       minLength: 3,
       maxLength: 20,
     },
     lastname: {
       type: String,
-      required: true,
       maxLength: 20,
     },
     email: {
@@ -49,7 +47,6 @@ var userSchema = new Schema<user, UserModel, Methods>(
     isEmailVerified: Boolean,
     mobile: {
       type: String,
-      required: true,
       unique: true,
       maxLength: 10,
       minLength: 10,

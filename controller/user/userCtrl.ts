@@ -263,29 +263,26 @@ const logout = asyncHandler(async (req: Request, res: any) => {
 const updatedUser = asyncHandler(async (req: Req_with_user, res: Response) => {
   if (!req.user) throw new Error("user not found");
   const { _id } = req.user;
-  const { id: body_id } = req.body;
-  // const { id: param_id } = req.params;
-  const { id: query_id } = req.query;
-  let id = _id || query_id || body_id;
-  try {
-    validateMongoDbId(id);
-    const updatedUser = await User.findByIdAndUpdate(
-      id,
-      {
-        firstname: req?.body?.firstname,
-        lastname: req?.body?.lastname,
-        email: req?.body?.email,
-        mobile: req?.body?.mobile,
-      },
-      {
-        new: true,
-      }
-    );
-    res.json(updatedUser);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal server error");
-  }
+  const { id } = req.body;
+  // try {
+  //   validateMongoDbId(id);
+  //   const updatedUser = await User.findByIdAndUpdate(
+  //     id,
+  //     {
+  //       firstname: req?.body?.firstname,
+  //       lastname: req?.body?.lastname,
+  //       email: req?.body?.email,
+  //       mobile: req?.body?.mobile,
+  //     },
+  //     {
+  //       new: true,
+  //     }
+  //   );
+  //   res.json(updatedUser);
+  // } catch (error) {
+  //   console.error(error);
+  //   res.status(500).send("Internal server error");
+  // }
 });
 
 // Get all users

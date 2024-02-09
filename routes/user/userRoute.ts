@@ -50,7 +50,7 @@ router.use("/wishlist", wishlistRoute);
 
 router.use("/address", addressRoutes);
 
-router.put("/edit", authMiddleware, updatedUser);
+// router.put("/edit", authMiddleware, updatedUser);
 
 router.get("/find/:id", authMiddleware, isAdmin, getaUser);
 router.get("/find", authMiddleware, isAdmin, getallUser);
