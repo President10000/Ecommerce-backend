@@ -1,18 +1,10 @@
-// const bodyParser = require("body-parser");
 import bodyParser from "body-parser";
-// const express = require("express");
 import express, { Request, Response } from "express";
-// const dbConnect = require("./config/dbConnect");
 import dbConnect from "./config/dbConnect";
 import { notFound, errorHandler } from "./middlewares/errorHandler";
-const app = express();
-// const dotenv = require("dotenv").config();
 import dotenv from "dotenv";
-// const userRouter = require("./routes/user/userRoute");
 import userRouter from "./routes/user/userRoute";
-// const productRouter = require("./routes/productRoute");
 import productRouter from "./routes/productRoute";
-// const searchRouter = require("./routes/searchRoute");
 import searchRouter from "./routes/searchRoute";
 // const blogRouter = require("./routes/blogRoute");
 // const categoryRouter = require("./routes/prodcategoryRoute");
@@ -21,20 +13,14 @@ import searchRouter from "./routes/searchRoute";
 // const colorRouter = require("./routes/colorRoute");
 // const enqRouter = require("./routes/enqRoute");
 import enqRouter from "./routes/enqRoute";
-// const couponRouter = require("./routes/couponRoute");
-// const imageRoute = require("./routes/imageRoute");
 import imageRoute from "./routes/imageRoute";
-// const razorpay = require("./routes/razorpay");
-// const cookieParser = require("cookie-parser");
 import cookieParser from "cookie-parser";
-// const morgan = require("morgan");
 import morgan from "morgan";
-
-// const cors = require("cors");
 import cors from "cors";
+const PORT = process.env.PORT || 4000;
+const app = express();
 dotenv.config();
 
-const PORT = process.env.PORT || 4000;
 dbConnect();
 app.use(morgan("dev"));
 const allowedOrigins = [
@@ -63,8 +49,6 @@ app.use("/api/search", searchRouter);
 app.use("/api/image", imageRoute);
 
 app.use("/api/enquiry", enqRouter);
-
-// app.use("/api/razorpay", razorpay);
 
 // app.use("/api/blog", blogRouter);
 // app.use("/api/category", categoryRouter);

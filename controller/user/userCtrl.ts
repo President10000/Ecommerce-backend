@@ -1,21 +1,10 @@
-// const User = require("../../models/userModel");
 import User from "../../models/userModel";
 import express, { Request, Response } from "express";
-// const Product = require("../../models/productModel");
-// const Cart = require("../../models/cartModel");
-// const { Address } = require("../../models/addressModel");
-// const Coupon = require("../../models/couponModel");
-// const Order = require("../../models/orderModel");
-// const uniqid = require("uniqid");
 
 import asyncHandler from "express-async-handler";
-// const { generateToken } = require("../../config/jwtToken");
 import { generateToken } from "../../config/jwtToken";
-// const validateMongoDbId = require("../../utils/validateMongodbId");
 import { validateMongoDbId } from "../../utils/validateMongodbId";
-// const { generateRefreshToken } = require("../../config/refreshtoken");
 import { generateRefreshToken } from "../../config/refreshtoken";
-// const crypto = require("crypto");
 import jwt from "jsonwebtoken";
 import { Req_with_user } from "../../middlewares/authMiddleware";
 import uniqid from "uniqid";
@@ -25,7 +14,7 @@ import { transporter } from "../../utils/emaiTransporter";
 // Create a User ----------------------------------------------
 
 const usersToVerify: {
-  date:number
+  date: number;
   _id: string;
   email: string;
   verificationToken: string;
@@ -35,18 +24,24 @@ const createUser = asyncHandler(async (req: Request, res: Response) => {
   const email = req.body.email;
 
   if (!email) {
-    res.json(404).json({ message: "Invalid Credentials" });
+    throw new Error("Invalid Credentials");
   }
-try {
-  
-  const findUser = await User.findOne({ email: email });
 
+  const findUser = await User.findOne({ email: email });
+  if (findUser) {
+    throw new Error("User Already Exists");
+  }
   if (!findUser) {
     const newUser = await new User(req.body).save();
 
     const verificationToken = uniqid();
     // Save user with verification token (in a real app, you'd save this to a database)
-    usersToVerify.push({ _id: newUser._id, email, verificationToken ,date:Date.now()});
+    usersToVerify.push({
+      _id: newUser._id,
+      email,
+      verificationToken,
+      date: Date.now(),
+    });
 
     // Send verification email
     const mailOptions = {
@@ -56,7 +51,7 @@ try {
       text: `Click the following link to verify your email: ${base_url}user/verify/email/${verificationToken}`,
     };
 
-    await transporter.sendMail(mailOptions)
+    await transporter.sendMail(mailOptions);
     res.json({
       _id: newUser._id,
       firstname: newUser.firstname,
@@ -65,72 +60,58 @@ try {
       mobile: newUser.mobile,
       token: generateToken(newUser._id.toString()),
     });
-  } else {
-    // throw new Error("User Already Exists");
-    res.status(400).json({ message: "User Already Exists" });
   }
-} catch (error:any) {
-  res.status(400).json({ error });
-  // throw new Error("internal server error")
-}
 });
 
-const generateTokenToVerifyEmail = asyncHandler(async (req: Req_with_user, res: Response) => {
-  // const email = req.body.email;
-  if(!req.user){
-    throw new Error("user not found")
+const generateTokenToVerifyEmail = asyncHandler(
+  async (req: Req_with_user, res: Response) => {
+    if (!req.user) {
+      throw new Error("user not found");
+    }
+    const { _id, email } = req.user;
+
+    const verificationToken = uniqid();
+    // Save user with verification token (in a real app, you'd save this to a database)
+    usersToVerify.push({
+      _id: _id,
+      email,
+      verificationToken,
+      date: Date.now(),
+    });
+
+    // Send verification email
+    const mailOptions = {
+      from: '"Hey 👻" <abc@gmail.com.com>',
+      to: email,
+      subject: "Email Verification",
+      text: `Click the following link to verify your email: ${base_url}user/verify/email/${verificationToken}`,
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.json({
+      status: true,
+      message: "sent to registered email",
+    });
   }
-  const {_id,email}=req.user
-
-
-try {
-  
-  const verificationToken = uniqid();
-  // Save user with verification token (in a real app, you'd save this to a database)
-  usersToVerify.push({ _id: _id, email, verificationToken ,date:Date.now()});
-
-  // Send verification email
-  const mailOptions = {
-    from: '"Hey 👻" <abc@gmail.com.com>',
-    to: email,
-    subject: "Email Verification",
-    text: `Click the following link to verify your email: ${base_url}user/verify/email/${verificationToken}`,
-  };
-
-  await transporter.sendMail(mailOptions)
-  res.json({
-    status:true,message:"sent to registered email"
-  });
-
-} catch (error:any) {
-  // res.status(400).json({ error });
-  throw new Error("internal server error")
-}
-});
-
-
+);
 
 const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
   const { token } = req.params;
   const user = usersToVerify.find((u) => u.verificationToken === token);
-  try {
-    if (!user) {
-      res
-        .status(404)
-        .json({ succsess: false, message: "Invalid verification token" });
-    } else {
-      await User.findByIdAndUpdate(user._id, {
-        isEmailVerified: true,
-      });
-  
-      console.log("Email verified for user:", user.email);
-      res.json({
-        succsess: true,
-        message: "Email verified successfully",
-      });
-    }
-  } catch (error) {
-    throw new Error("unable to verify")
+  if (!user) {
+    res
+      .status(404)
+      .json({ succsess: false, message: "Invalid verification token" });
+  } else {
+    await User.findByIdAndUpdate(user._id, {
+      isEmailVerified: true,
+    });
+
+    console.log("Email verified for user:", user.email);
+    res.json({
+      succsess: true,
+      message: "Email verified successfully",
+    });
   }
 });
 
@@ -142,36 +123,31 @@ const loginUserCtrl = asyncHandler(async (req: Request, res: Response) => {
   if (!email || !password) {
     throw new Error("crecidencials not found");
   }
-  try {
-    const findUser = await User.findOne({ email });
-    if (!findUser || !(await findUser.isPasswordMatched(password)))
-      throw new Error("Invalid Credentials");
+  const findUser = await User.findOne({ email });
+  if (!findUser || !(await findUser.isPasswordMatched(password)))
+    throw new Error("Invalid Credentials");
 
-    const refreshToken = await generateRefreshToken(findUser?._id.toString());
-    const updateuser = await User.findByIdAndUpdate(
-      findUser.id,
-      {
-        refreshToken: refreshToken,
-      },
-      { new: true }
-    );
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      maxAge: 60 * 60 * 24 * 30,
-    });
+  const refreshToken = await generateRefreshToken(findUser?._id.toString());
+  await User.findByIdAndUpdate(
+    findUser.id,
+    {
+      refreshToken: refreshToken,
+    },
+    { new: true }
+  );
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    maxAge: 60 * 60 * 24 * 30 * 1000,
+  });
 
-    res.json({
-      _id: findUser._id,
-      firstname: findUser.firstname,
-      lastname: findUser.lastname,
-      email: findUser.email,
-      mobile: findUser.mobile,
-      token: generateToken(findUser._id.toString()),
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal server error");
-  }
+  res.json({
+    _id: findUser._id,
+    firstname: findUser.firstname,
+    lastname: findUser.lastname,
+    email: findUser.email,
+    mobile: findUser.mobile,
+    token: generateToken(findUser._id.toString()),
+  });
 });
 
 // admin login
@@ -186,31 +162,26 @@ const loginAdmin = asyncHandler(async (req: Request, res: Response) => {
   if (!findAdmin || !(await findAdmin.isPasswordMatched(password))) {
     throw new Error("Invalid Credentials");
   }
-  try {
-    const refreshToken = await generateRefreshToken(findAdmin?._id.toString());
-    await User.findByIdAndUpdate(
-      findAdmin._id,
-      {
-        refreshToken: refreshToken,
-      },
-      { new: true }
-    );
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      maxAge: 60 * 60 * 24 * 30,
-    });
-    res.json({
-      _id: findAdmin?._id,
-      firstname: findAdmin?.firstname,
-      lastname: findAdmin?.lastname,
-      email: findAdmin?.email,
-      mobile: findAdmin?.mobile,
-      token: generateToken(findAdmin?._id.toString()),
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal server error");
-  }
+  const refreshToken = await generateRefreshToken(findAdmin?._id.toString());
+  await User.findByIdAndUpdate(
+    findAdmin._id,
+    {
+      refreshToken: refreshToken,
+    },
+    { new: true }
+  );
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    maxAge: 60 * 60 * 24 * 30,
+  });
+  res.json({
+    _id: findAdmin?._id,
+    firstname: findAdmin?.firstname,
+    lastname: findAdmin?.lastname,
+    email: findAdmin?.email,
+    mobile: findAdmin?.mobile,
+    token: generateToken(findAdmin?._id.toString()),
+  });
 });
 
 // handle refresh token
@@ -260,122 +231,83 @@ const logout = asyncHandler(async (req: Request, res: any) => {
 
 // Update a user
 
-const updatedUser = asyncHandler(async (req: Req_with_user, res: Response) => {
-  if (!req.user) throw new Error("user not found");
-  const { _id } = req.user;
-  const { id } = req.body;
-  // try {
-  //   validateMongoDbId(id);
-  //   const updatedUser = await User.findByIdAndUpdate(
-  //     id,
-  //     {
-  //       firstname: req?.body?.firstname,
-  //       lastname: req?.body?.lastname,
-  //       email: req?.body?.email,
-  //       mobile: req?.body?.mobile,
-  //     },
-  //     {
-  //       new: true,
-  //     }
-  //   );
-  //   res.json(updatedUser);
-  // } catch (error) {
-  //   console.error(error);
-  //   res.status(500).send("Internal server error");
-  // }
-});
+// const updatedUser = asyncHandler(async (req: Req_with_user, res: Response) => {
+//   if (!req.user) throw new Error("user not found");
+//   const { _id } = req.user;
+//   const { id } = req.body;
+//   validateMongoDbId(id);
+//   const updatedUser = await User.findByIdAndUpdate(
+//     id,
+//     {
+//       firstname: req?.body?.firstname,
+//       lastname: req?.body?.lastname,
+//       email: req?.body?.email,
+//       mobile: req?.body?.mobile,
+//     },
+//     {
+//       new: true,
+//     }
+//   );
+//   res.json(updatedUser);
+// });
 
 // Get all users
 
 const getallUser = asyncHandler(async (req: Request, res: Response) => {
-  try {
-    const getUsers = await User.find();
+  const getUsers = await User.find();
     res.json(getUsers);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal server error");
-  }
 });
 
 // Get a single user
 
 const getaUser = asyncHandler(async (req: Request, res: Response) => {
-  // const { id: body_id } = req.body;
   const { id } = req.params;
-  // const { id: query_id } = req.query;
-  try {
-    validateMongoDbId(id);
+  validateMongoDbId(id);
     const user = await User.findById(id);
     res.json(user);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal server error");
-  }
 });
 
 // Get a single user
 
 const deleteaUser = asyncHandler(async (req: Request, res: Response) => {
-  // const { id: body_id } = req.body;
   const { id } = req.params;
-  // const { id: query_id } = req.query;
-
-  try {
-    validateMongoDbId(id);
-    const deleteaUser = await User.findByIdAndDelete(id);
-    res.json({
-      deleteaUser,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal server error");
-  }
+  validateMongoDbId(id);
+  const deleteaUser = await User.findByIdAndDelete(id);
+  res.json({
+    deleteaUser,
+  });
 });
 
 const blockUser = asyncHandler(async (req: Request, res: Response) => {
-  // const { id: body_id } = req.body;
   const { id } = req.params;
-
-  try {
-    validateMongoDbId(id);
-    const blockusr = await User.findByIdAndUpdate(
-      id,
-      {
-        isBlocked: true,
-      },
-      {
-        new: true,
-      }
-    );
-    res.json(blockusr);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal server error");
-  }
+  validateMongoDbId(id);
+  const blockusr = await User.findByIdAndUpdate(
+    id,
+    {
+      isBlocked: true,
+    },
+    {
+      new: true,
+    }
+  );
+  res.json(blockusr);
 });
 
 const unblockUser = asyncHandler(async (req: Request, res: Response) => {
-  // const { id: body_id } = req.body;
   const { id } = req.params;
-
-  try {
-    validateMongoDbId(id);
-    await User.findByIdAndUpdate(
-      id,
-      {
-        isBlocked: false,
-      },
-      {
-        new: true,
-      }
-    );
-    res.json({
-      message: "User UnBlocked",
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal server error");
-  }
+  validateMongoDbId(id);
+  await User.findByIdAndUpdate(
+    id,
+    {
+      isBlocked: false,
+    },
+    {
+      new: true,
+    }
+  );
+  res.json({
+    message: "User UnBlocked",
+  });
 });
 
 export {
@@ -386,7 +318,7 @@ export {
   getallUser,
   getaUser,
   deleteaUser,
-  updatedUser,
+  // updatedUser,
   blockUser,
   unblockUser,
   handleRefreshToken,

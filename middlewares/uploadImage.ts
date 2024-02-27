@@ -1,13 +1,6 @@
-// const multer = require("multer");
 
-// const sharp = require("sharp");
-// import sharp from "sharp"
-// const path = require("path");
 import path from "path"
-// const fs = require("fs");
 import fs from "fs"
-
-// const os = require("os");
 import os from "os"
 import { Request } from 'express'
 import multer, { FileFilterCallback } from 'multer'
