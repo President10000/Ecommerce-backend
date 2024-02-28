@@ -3,12 +3,12 @@ import asyncHandler from "express-async-handler";
 import { validateMongoDbId } from "../../utils/validateMongodbId";
 import { Req_with_user } from "../../middlewares/authMiddleware";
 import { Response } from "express";
+import { strict_false } from "../../utils/populate";
 
 const saveAddress = asyncHandler(async (req: Req_with_user, res: Response) => {
   if (!req.user) throw new Error("user not found");
   const { _id } = req.user;
   let { populate = "" } = req.query;
-  if (populate != "user") populate = "";
   const { phone_no, zipcode } = req.body;
   if (!zipcode || !phone_no) {
     res.status(400).json({ message: `zipcode and phone no is required ` });
@@ -17,7 +17,7 @@ const saveAddress = asyncHandler(async (req: Req_with_user, res: Response) => {
   validateMongoDbId(_id);
   let newAddress = await (
     await new Address({ ...req.body, user: _id }).save()
-  ).populate({ path: populate, strictPopulate: false });
+  ).populate(strict_false(populate));
   res.json(newAddress);
 });
 
@@ -26,7 +26,6 @@ const updateAddress = asyncHandler(
     if (!req.user) throw new Error("user not found");
     const { id } = req.params;
     let { populate = "" } = req.query;
-    if (populate != "user") populate = "";
     const { address } = req.body;
     const { phone_no, zipcode } = address;
 
@@ -37,7 +36,7 @@ const updateAddress = asyncHandler(
     validateMongoDbId(id);
     const updated = await Address.findOneAndUpdate({ _id: id }, address, {
       new: true,
-    }).populate({ path: populate, strictPopulate: false });
+    }).populate(strict_false(populate));
     res.json(updated);
   }
 );
@@ -83,12 +82,11 @@ const getAddressById = asyncHandler(
     // const { _id } = req.user;
     const { id } = req.params;
     let { populate = "" } = req.query;
-    if (populate != "user") populate = "";
 
     validateMongoDbId(id);
     const updated = await Address.find({
       $or: [{ _id: id }, { user: id }],
-    }).populate({ path: populate, strictPopulate: false });
+    }).populate(strict_false(populate));
     res.json(updated);
   }
 );

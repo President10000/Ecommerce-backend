@@ -7,18 +7,12 @@ import { validateMongoDbId } from "../../utils/validateMongodbId";
 import { Req_with_user } from "../../middlewares/authMiddleware";
 import { Response } from "express";
 import { instance } from "../../utils/rajorpayInstance";
+import { strict_false } from "../../utils/populate";
 
 const payOnDeliveryOrder = asyncHandler(async (req: Req_with_user, res) => {
   const { receipt, notes, address } = req.body;
   const _id = req.user?._id;
   let { populate = "" } = req.query;
-  if (
-    populate != "products.product" &&
-    populate != "user" &&
-    populate != "address"
-  ) {
-    populate = "";
-  }
   if (!address || !receipt || !notes || !_id) {
     throw new Error("Create cash order failed");
   }
@@ -78,20 +72,13 @@ const payOnDeliveryOrder = asyncHandler(async (req: Req_with_user, res) => {
     };
   });
   await Product.bulkWrite(update, {});
-  res.json(await newOrder.populate({ path: populate, strictPopulate: false }));
+  res.json(await newOrder.populate(strict_false(populate)));
 });
 
 const payNowOrder = asyncHandler(async (req: Req_with_user, res) => {
   const { receipt, notes, address, couponApplied } = req.body;
   const _id = req.user?._id;
   let { populate = "" } = req.query;
-  if (
-    populate != "products.product" &&
-    populate != "user" &&
-    populate != "address"
-  ) {
-    populate = "";
-  }
 
   if (!address || !receipt || !notes || !_id) {
     throw new Error("Create cash order failed");
@@ -156,87 +143,54 @@ const payNowOrder = asyncHandler(async (req: Req_with_user, res) => {
     };
   });
   await Product.bulkWrite(update, {});
-  res.json(await newOrder.populate({ path: populate, strictPopulate: false }));
+  res.json(await newOrder.populate(strict_false(populate)));
 });
 
-const getOrdersByUser = asyncHandler(
-  async (req: Req_with_user, res: Response) => {
-    if (!req.user) throw new Error("user not found");
-    let { _id } = req.user;
-    const { id: param_id } = req.params;
-    let { populate = "" } = req.query;
-    if (
-      populate != "products.product" &&
-      populate != "user" &&
-      populate != "address"
-    ) {
-      populate = "";
-    }
-    _id = _id || param_id;
-    validateMongoDbId(_id);
-    const userorders = await Order.find({ user: _id }).populate({
-      path: populate,
-      strictPopulate: false,
-    });
-    res.json(userorders);
-  }
-);
+// const getOrdersByUser = asyncHandler(
+//   async (req: Req_with_user, res: Response) => {
+//     if (!req.user) throw new Error("user not found");
+//     let { _id } = req.user;
+//     const { id: param_id } = req.params;
+//     let { populate = "" } = req.query;
+ 
+//     _id = _id || param_id;
+//     validateMongoDbId(_id);
+//     const userorders = await Order.find({ user: _id }).populate(strict_false(populate));
+//     res.json(userorders);
+//   }
+// );
 
 const getAllOrders = asyncHandler(async (req, res) => {
   let { populate = "" } = req.query;
-  if (
-    populate != "products.product" &&
-    populate != "user" &&
-    populate != "address"
-  ) {
-    populate = "";
-  }
-  const alluserorders = await Order.find().populate({
-    path: populate,
-    strictPopulate: false,
-  });
+
+  const alluserorders = await Order.find().populate(strict_false(populate));
   res.json(alluserorders);
 });
 
 const getOrderById = asyncHandler(async (req, res) => {
   let { id } = req.params;
   let { populate = "" } = req.query;
-  if (
-    populate != "products.product" &&
-    populate != "user" &&
-    populate != "address"
-  ) {
-    populate = "";
-  }
+ 
   validateMongoDbId(id);
-  const userorders = await Order.find({ _id: id }).populate({
-    path: populate,
-    strictPopulate: false,
-  });
+  const userorders = await Order.find({$or:[{ _id: id },{ user: id }]}).populate(strict_false(populate));
   res.json(userorders);
 });
 
 const updateOrderStatus = asyncHandler(async (req, res) => {
   let { id } = req.params;
   let { populate = "" } = req.query;
-  if (
-    populate != "products.product" &&
-    populate != "user" &&
-    populate != "address"
-  ) {
-    populate = "";
-  }
+
   validateMongoDbId(id);
   const updateOrderStatus = await Order.findByIdAndUpdate(id, req.body, {
     new: true,
-  }).populate({ path: populate, strictPopulate: false });
+  }).populate(strict_false(populate));
   res.json(updateOrderStatus);
 });
 
 export {
   payOnDeliveryOrder,
   payNowOrder,
-  getOrdersByUser,
+  // getOrdersByUser,
   updateOrderStatus,
   getAllOrders,
   getOrderById,

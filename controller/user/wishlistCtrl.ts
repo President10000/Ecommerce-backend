@@ -4,13 +4,13 @@ import { validateMongoDbId } from "../../utils/validateMongodbId";
 import { Req_with_user } from "../../middlewares/authMiddleware";
 import { Response } from "express";
 import wishlistModel from "../../models/wishlistModel";
+import { strict_false } from "../../utils/populate";
 
 const createOrDeleteItem = asyncHandler(
   async (req: Req_with_user, res: Response) => {
     if (!req.user) throw new Error("user not found");
     const { _id } = req.user;
     let { populate = "" } = req.query;
-    if (populate != "product" && populate != "user") populate = "";
 
     const { id } = req.params;
     validateMongoDbId(id);
@@ -27,7 +27,7 @@ const createOrDeleteItem = asyncHandler(
           product: id,
           user: _id,
         }).save()
-      ).populate({ path: populate, strictPopulate: false });
+      ).populate(strict_false(populate));
       res.json({
         status: "added",
         wish: added,
@@ -56,17 +56,15 @@ const getWishById = asyncHandler(async (req: Req_with_user, res: Response) => {
   if (!req.user) throw new Error("user not found");
   const { id } = req.params;
   let { populate = "" } = req.query;
-  if (populate != "product" && populate != "user") populate = "";
   validateMongoDbId(id);
   const wishlist = await User.find({
     $or: [{ _id: id }, { user: id }],
-  }).populate({
-    path: populate,
-    strictPopulate: false,
-  });
+  }).populate(strict_false(populate));
   res.json(wishlist);
 });
 
 export {
   //  getWishlistByUser,
-   getWishById, createOrDeleteItem };
+  getWishById,
+  createOrDeleteItem,
+};

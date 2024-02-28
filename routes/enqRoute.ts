@@ -1,5 +1,4 @@
-
-import express from "express"
+import express from "express";
 import {
   createEnquiry,
   updateEnquiry,
@@ -8,14 +7,14 @@ import {
   // getEnquiryByUser,
   getallEnquiry,
 } from "../controller/enqCtrl";
-import { authMiddleware,isAdmin } from "../middlewares/authMiddleware";
+import { authMiddleware, isAdmin } from "../middlewares/authMiddleware";
 const router = express.Router();
 
-router.post("/",authMiddleware, createEnquiry);
-router.put("/:id", authMiddleware, isAdmin, updateEnquiry);
-router.delete("/:id", authMiddleware, isAdmin, deleteEnquiry);
+router.post("/", authMiddleware, createEnquiry);
+router.put("/:id", isAdmin, updateEnquiry);
+router.delete("/:id", isAdmin, deleteEnquiry);
 router.get("/:id", getEnquiryById);
 // router.get("/by-user/:id", getEnquiryByUser);
-router.get("/",getallEnquiry);
+router.get("/", isAdmin, getallEnquiry);
 
 export default router;

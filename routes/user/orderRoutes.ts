@@ -2,7 +2,7 @@
 import express from "express";
 import {
   payOnDeliveryOrder,payNowOrder,
-  getOrdersByUser,
+  // getOrdersByUser,
   updateOrderStatus,
   getAllOrders,
   getOrderById,
@@ -12,9 +12,9 @@ const router = express.Router();
 
 router.post("/pay-on-delivery", authMiddleware, payOnDeliveryOrder);
 router.post("/pay-now", authMiddleware, payNowOrder);
-router.get("/by-user/:id", authMiddleware, getOrdersByUser);
-router.get("/all", authMiddleware, isAdmin, getAllOrders);
-router.get("/by-id/:id", authMiddleware, isAdmin, getOrderById);
+// router.get("/by-user/:id", authMiddleware, getOrdersByUser);
+router.get("/", authMiddleware, isAdmin, getAllOrders);
+router.get("/:id", authMiddleware, isAdmin, getOrderById);
 router.put("/update/:id", authMiddleware,  updateOrderStatus);
 
 export default router;

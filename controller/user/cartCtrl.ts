@@ -1,12 +1,12 @@
-import User from "../../models/userModel";
-import Product from "../../models/productModel";
+
 import Cart from "../../models/cartModel";
-import Coupon from "../../models/couponModel";
+// import Coupon from "../../models/couponModel";
 import { Req_with_user } from "../../middlewares/authMiddleware";
 import { Response } from "express";
 
 import asyncHandler from "express-async-handler";
 import { validateMongoDbId } from "../../utils/validateMongodbId";
+import { strict_false } from "../../utils/populate";
 
 const addItemToCart = asyncHandler(
   async (req: Req_with_user, res: Response) => {
@@ -14,7 +14,6 @@ const addItemToCart = asyncHandler(
       req.body;
     const _id = req.user?._id;
     let { populate = "" } = req.query;
-    if (populate != "product" && populate != "user") populate = "";
     if (!product_id || !quantity || !_id) throw new Error("missing details");
     validateMongoDbId(_id);
     const isExist = await Cart.findOne({ product: product_id });
@@ -23,7 +22,7 @@ const addItemToCart = asyncHandler(
         { product: product_id, user: _id },
         { quantity: isExist.quantity + quantity },
         { new: true }
-      ).populate({ path: populate, strictPopulate: false });
+      ).populate(strict_false(populate));
 
       res.json(updateQty);
     } else {
@@ -33,7 +32,7 @@ const addItemToCart = asyncHandler(
           quantity,
           user: _id,
         }).save()
-      ).populate({ path: populate, strictPopulate: false });
+      ).populate(strict_false(populate));
 
       res.json(newCart);
     }
@@ -44,12 +43,8 @@ const getUserCart = asyncHandler(async (req: Req_with_user, res: Response) => {
   if (!req.user) throw new Error("user not found");
   const { _id } = req.user;
   let { populate = "" } = req.query;
-  if (populate != "product" && populate != "user") populate = "";
   validateMongoDbId(_id);
-  const cart = await Cart.find({ user: _id }).populate({
-    path: populate,
-    strictPopulate: false,
-  });
+  const cart = await Cart.find({ user: _id }).populate(strict_false(populate));
   res.json(cart);
 });
 
