@@ -1,12 +1,12 @@
-// const express = require("express");
-import express, { Request, Response } from "express";
+
+import express from "express";
 import {
   createUser,
   loginUserCtrl,
   getallUser,
   getaUser,
   deleteaUser,
-  updatedUser,
+  // updatedUser,
   blockUser,
   unblockUser,
   handleRefreshToken,
@@ -15,18 +15,11 @@ import {
   verifyEmail,
   generateTokenToVerifyEmail,
 } from "../../controller/user/userCtrl";
-// const passwordRoute = require("./passwordRoute");
 import passwordRoute from "./passwordRoute"
-// const cartRoutes = require("./cartRoutes");
 import cartRoutes from "./cartRoutes"
-// const orderRoutes = require("./orderRoutes");
 import orderRoutes from "./orderRoutes"
-
-// const addressRoutes = require("./addressRoutes");
 import addressRoutes from "./addressRoutes"
-// const wishlistRoute = require("./wishlistRoute");
 import wishlistRoute from "./wishlistRoute"
-// const { authMiddleware, isAdmin } = require("../../middlewares/authMiddleware");
 import { authMiddleware, isAdmin } from "../../middlewares/authMiddleware";
 const router = express.Router();
 

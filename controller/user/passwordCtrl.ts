@@ -1,18 +1,9 @@
-// const User = require("../../models/userModel");
+
 import User from "../../models/userModel";
-
-// const asyncHandler = require("express-async-handler");
 import asyncHandler from "express-async-handler";
-// const validateMongoDbId = require("../../utils/validateMongodbId");
 import { validateMongoDbId } from "../../utils/validateMongodbId";
-// const crypto = require("crypto");
 import crypto from "crypto";
-
-// const jwt = require("jsonwebtoken");
 import jwt from "jsonwebtoken";
-
-// const sendEmail = require("../emailCtrl");
-// import sendEmail from "../emailCtrl";
 import { Req_with_user } from "../../middlewares/authMiddleware";
 import {
   base_url,
@@ -24,7 +15,7 @@ import { generateToken } from "../../config/jwtToken";
 const updatePassword = asyncHandler(async (req: Req_with_user, res) => {
   const _id = req.user?._id;
   const { password } = req.body;
-  if (!_id) throw new Error("user not found something went wrong");
+  if (!_id) throw new Error("user not found ");
   validateMongoDbId(_id);
   const user = await User.findById(_id);
   if (password && user) {
@@ -50,8 +41,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
   const { email }: { email: string } = req.body;
   const user = await User.findOne({ email });
   if (!user) throw new Error("User not found with this email");
-  try {
-    const token = await user.createPasswordResetToken();
+  const token = await user.createPasswordResetToken();
     await user.save();
     const resetURL = `Hi, Please follow this link to reset Your Password. This link is valid till 10 minutes from now. ${front_end_route_to_reset_password}?token=${token}`;
     const mailOptions = {
@@ -62,10 +52,6 @@ const forgotPassword = asyncHandler(async (req, res) => {
     };
     await transporter.sendMail(mailOptions);
     res.json(token);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal server error");
-  }
 });
 
 const resetPassword = asyncHandler(async (req, res) => {

@@ -3,14 +3,14 @@ import {
   addItemToCart,
   removeItemFromCart,
   getUserCart,
-  applyCoupon,
+  // applyCoupon,
 } from "../../controller/user/cartCtrl";
-import { authMiddleware, isAdmin } from "../../middlewares/authMiddleware";
+import { authMiddleware} from "../../middlewares/authMiddleware";
 const router = express.Router();
 
 router.post("/", authMiddleware, addItemToCart);
 router.delete("/", authMiddleware, removeItemFromCart);
-router.post("/applycoupon", authMiddleware, applyCoupon);
+// router.post("/applycoupon", authMiddleware, applyCoupon);
 router.get("/", authMiddleware, getUserCart);
 // router.delete("/empty-cart", authMiddleware, emptyCart);
 

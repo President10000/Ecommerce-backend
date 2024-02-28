@@ -1,115 +1,69 @@
-// const Enquiry = require("../models/enqModel");
 import Enquiry from "../models/enqModel";
-// const asyncHandler = require("express-async-handler");
 import asyncHandler from "express-async-handler";
-// const validateMongoDbId = require("../utils/validateMongodbId");
 import { validateMongoDbId } from "../utils/validateMongodbId";
-import { Req_with_user } from "../middlewares/authMiddleware";
+import { strict_false } from "../utils/populate";
 
 const createEnquiry = asyncHandler(async (req, res) => {
   let { populate = "" } = req.query;
-  if (populate != "user") populate = "";
-  try {
-    const newEnquiry = await new Enquiry(req.body).save();
-    res.json(populate?await newEnquiry.populate(populate as string | string[]):newEnquiry);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal server error");
-  }
+  const newEnquiry = await (
+    await new Enquiry(req.body).save()
+  ).populate(strict_false(populate));
+  res.json(newEnquiry);
 });
 
 const updateEnquiry = asyncHandler(async (req, res) => {
   let { populate = "" } = req.query;
-  if (populate != "user") populate = "";
   const { id } = req.params;
-  try {
-    validateMongoDbId(id);
-    const updated = await Enquiry.findByIdAndUpdate(id, req.body, {
-      new: true,
-    });
-    res.json(populate?await updated?.populate(populate as string | string[]):updated);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal server error");
-  }
+  validateMongoDbId(id);
+  const updated = await Enquiry.findByIdAndUpdate(id, req.body, {
+    new: true,
+  }).populate(strict_false(populate));
+  res.json(updated);
 });
 const deleteEnquiry = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  try {
-    validateMongoDbId(id);
-    const deletedEnquiry = await Enquiry.findByIdAndDelete(id);
-    res.json(deletedEnquiry);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal server error");
-  }
+  validateMongoDbId(id);
+  const deletedEnquiry = await Enquiry.findByIdAndDelete(id);
+  res.json(deletedEnquiry);
 });
 
 const getEnquiryById = asyncHandler(async (req, res) => {
   let { populate = "" } = req.query;
-  if (populate != "user") populate = "";
   const { id } = req.params;
-  try {
-    validateMongoDbId(id);
-   if(populate){
-    const getaEnquiry = await Enquiry.findById(id).populate(
-      populate as string | string[]
-    );
-    res.json(getaEnquiry);
-   }else{
-    const getaEnquiry = await Enquiry.findById(id)
-    res.json(getaEnquiry);
-   }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal server error");
-  }
+  validateMongoDbId(id);
+  let getaEnquiry = await Enquiry.find(
+    { $or: [{ user: id }, { _id: id }] },
+    {},
+    { populate: { strictPopulate: false, path: "" } }
+  ).populate(strict_false(populate));
+
+  res.json(getaEnquiry);
 });
-const getEnquiryByUser = asyncHandler(async (req: Req_with_user, res) => {
-  let { populate = "" } = req.query;
-  if (populate != "user") populate = "";
-  if (!req.user) throw new Error("user not found");
-  let { id } = req.params;
-  id = id || req.user._id;
-  try {
-    validateMongoDbId(id);
-   if(populate){
-    const getaEnquiry = await Enquiry.find({ user: id }).populate(
-      populate as string | string[]
-    );
-    res.json(getaEnquiry);
-   }else{
-    const getaEnquiry = await Enquiry.find({ user: id })
-    res.json(getaEnquiry);
-   }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal server error");
-  }
-});
+// const getEnquiryByUser = asyncHandler(async (req: Req_with_user, res) => {
+//   let { populate = "" } = req.query;
+//   if (populate != "user") populate = "";
+//   if (!req.user) throw new Error("user not found");
+//   let { id } = req.params;
+//   id = id || req.user._id;
+//   validateMongoDbId(id);
+//   const getaEnquiry = await Enquiry.find({ user: id }).populate({
+//     path: populate,
+//     strictPopulate: false,
+//   });
+//   res.json(getaEnquiry);
+// });
 const getallEnquiry = asyncHandler(async (req, res) => {
   let { populate = "" } = req.query;
-  if (populate != "user") populate = "";
-  try {
-   if(populate){
-    const getallEnquiry = await Enquiry.find().populate(
-      populate as string | string[]
-    );
-    res.json(getallEnquiry);
-   }else{
-    const getallEnquiry = await Enquiry.find()
-    res.json(getallEnquiry);
-   }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal server error");
-  }
+  const getallEnquiry = await Enquiry.find().populate(
+    strict_false(populate)
+  );
+  res.json(getallEnquiry);
 });
 export {
   createEnquiry,
   updateEnquiry,
   deleteEnquiry,
   getEnquiryById,
-  getEnquiryByUser,
+  // getEnquiryByUser,
   getallEnquiry,
 };

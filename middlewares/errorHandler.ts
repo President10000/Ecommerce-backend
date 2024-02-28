@@ -15,10 +15,10 @@ const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  const statuscode = res.statusCode == 200 ? 500 : res.statusCode;
-  res.status(statuscode);
+  res.statusCode = res.statusCode === 200 ? 404 : res.statusCode;
+  res.status(res.statusCode);
   res.json({
-    status: "fail",
+    status: res.statusCode,
     message: err?.message,
     stack: err?.stack,
   });
